@@ -1,6 +1,6 @@
 body {
     font-family: 'Arial', sans-serif;
-    background-color: #f0f0f0;
+    background-color: #f3f3f3;
     margin: 0;
     padding: 0;
     display: flex;
@@ -30,31 +30,16 @@ body {
     color: #333;
 }
 
-select {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-    margin-bottom: 20px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    background-color: #f7f7f7;
-    cursor: pointer;
-}
-
 .submit-btn button {
     padding: 12px 12px;
     width: auto;
     font-size: 16px;
     border-radius: 5px;
     border: none;
-    background-color: #0056b3;
+    background-color: #333;
     color: white;
     cursor: pointer;
     display: inline-block;
-}
-
-.submit-btn button:hover {
-    background-color: #003d82;
 }
 
 .question label {
@@ -71,8 +56,71 @@ select {
     margin-top: 24px;
 }
 
+
+input[type="radio"]:checked {
+    accent-color: #272727;
+}
+
 .error {
-    color: red;
+    color: rgb(255, 0, 106);
     display: none;
     margin-top: 24px;
+}
+
+button:hover {
+    background-color: #39ab87;
+}
+
+.dark-mode {
+    background-color: #272727;
+    color: white;
+}
+
+.dark-mode .container{
+    background-color: #2e2e2e;
+    color: white;
+}
+
+.dark-mode p{
+    color: white;
+}
+
+.dark-mode input[type="radio"]:checked {
+    accent-color: #39ab87;
+}
+
+
+.dark-mode button {
+    background-color: #39ab87;
+}
+
+.dark-mode button:hover {
+    background-color: #272727;
+}
+
+#theme-toggle {
+    position: fixed;
+    top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    color: #333;
+}
+
+.dark-mode #theme-toggle {
+    color: #f3f3f3;
+}
+
+.moon, .sun {
+    transition: transform 0.3s ease;
+}
+
+#theme-toggle.dark .moon,
+#theme-toggle.light .sun {
+    transform: rotate(-20deg);
 }
