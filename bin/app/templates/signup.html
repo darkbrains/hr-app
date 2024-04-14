@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="/static/background_c.webp?v=3"/>
+    <title>People Connect</title>
+    <link rel="stylesheet" href="/static/new-styles.css?v=3">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-form">
+            <h1>Welcome</h1>
+            <div class="w-image">
+                <img src="/static/background.webp">
+            </div>
+            <div class="w-text">
+                <p>Sign up to People Connect.</p>
+            </div>
+            <form action="/signup" method="POST">
+                <div class="input-group">
+                    <input type="tel" id="phone" name="phone" placeholder="Example +1234567890">
+                    <div class="error" id="phone" style="display:none;"></div>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="email" name="email" placeholder="Email">
+                    <div class="error" id="email" style="display:none;"></div>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="name" name="name" placeholder="Name">
+                    <div class="error" id="name" style="display:none;"></div>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="surname" name="surname" placeholder="Surname">
+                    <div class="error" id="surname" style="display:none;"></div>
+                </div>
+                <button type="submit">Sign up</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+
+            form.addEventListener('submit', function(event) {
+                let hasError = false;
+
+                const phoneInput = document.getElementById('phone');
+                if (!phoneInput.value.trim() || !/^\+[0-9]{10,12}$/.test(phoneInput.value)) {
+                    const errorDiv = document.querySelector('.error#phone');
+                    errorDiv.textContent = 'Please enter a valid phone number (e.g., +1234567890).';
+                    errorDiv.style.display = 'block';
+                    hasError = true;
+                } else {
+                    document.querySelector('.error#phone').style.display = 'none';
+                }
+
+                const emailInput = document.getElementById('email');
+                if (!emailInput.value.trim() || !/^\S+@\S+\.\S+$/.test(emailInput.value)) {
+                    const errorDiv = document.querySelector('.error#email');
+                    errorDiv.textContent = 'Please enter a valid email address.';
+                    errorDiv.style.display = 'block';
+                    hasError = true;
+                } else {
+                    document.querySelector('.error#email').style.display = 'none';
+                }
+
+                const nameInput = document.getElementById('name');
+                if (!nameInput.value.trim()) {
+                    const errorDiv = document.querySelector('.error#name');
+                    errorDiv.textContent = 'Name is required.';
+                    errorDiv.style.display = 'block';
+                    hasError = true;
+                } else {
+                    document.querySelector('.error#name').style.display = 'none';
+                }
+
+                const surnameInput = document.getElementById('surname');
+                if (!surnameInput.value.trim()) {
+                    const errorDiv = document.querySelector('.error#surname');
+                    errorDiv.textContent = 'Surname is required.';
+                    errorDiv.style.display = 'block';
+                    hasError = true;
+                } else {
+                    document.querySelector('.error#surname').style.display = 'none';
+                }
+
+                if (hasError) {
+                    event.preventDefault();
+                }
+            });
+        });
+        </script>
+
+</body>
+</html>

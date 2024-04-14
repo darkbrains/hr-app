@@ -1,0 +1,148 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f3f3f3;
+    background-image: url(/static/background_a.webp);
+    justify-content: center;
+    background-repeat: no-repeat;
+    align-items: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.login-form {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 300px;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+input[type="text"],
+input[type="tel"] {
+    border: none;
+    outline: none;
+    width: calc(100% - 20px);
+    padding: 10px;
+    border: 1px solid gray;
+    border-radius: 4px;
+    transition: border-color 0.3s;
+}
+
+input[type="text"]:focus,
+input[type="tel"]:focus {
+    border-color: black;
+}
+
+button {
+    background-color: #5ca2c2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-transform: uppercase;
+    margin-top: 20px;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #498ead;
+}
+
+.w-image {
+    margin-left: auto;
+    margin-right: auto;
+    width: 100px;
+    height: 100px;
+    margin-bottom: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.w-text p {
+    margin: 30px;
+}
+
+.w-image img {
+    max-width: 100%;
+    max-height: 100%;
+    height: auto;
+}
+
+
+.signup a {
+    text-decoration: none;
+}
+
+a {
+    text-decoration: none;
+    color: #39ab87;
+}
+
+h1{
+    font-size: 25px;
+}
+
+
+
+
+.success-img {
+    margin-left: auto;
+    margin-right: auto;
+    width: 50px;
+    height: 50px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.success-img img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+}
+
+.error-img {
+    margin-left: auto;
+    margin-right: auto;
+    width: 50px;
+    height: 50px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.error-img img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+}
+
+.error {
+    color: rgb(255, 0, 106);
+    display: none;
+    margin-top: 24px;
+}

@@ -3,8 +3,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Interview Form</title>
-    <link rel="stylesheet" href="/static/styles.css?v=2">
+    <title>People Connect</title>
+    <link rel="stylesheet" href="/static/styles.css?=v3">
+    <link rel="shortcut icon" type="image/x-icon" href="/static/background_c.webp?v=3"/>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
@@ -295,6 +296,9 @@
             <div class="submit-btn" style="display:none;" id="submitDiv">
                 <button type="submit" id="submit-btn">Submit</button>
             </div>
+            <div id="progress" style="margin-bottom: 20px;"></div>
+
+
         </form>
     </div>
     <script>
@@ -336,9 +340,51 @@
             });
         });
     </script>
-    <script src="/static/theme.js?v=2"></script>
-    <button id="theme-toggle" aria-label="Toggle theme">
-        <span id="theme-toggle-icon" class="moon">&#9790;</span>
-    </button>
+    <script>
+        function showNext(questionNumber) {
+            const totalQuestions = 20;
+            if (!$(`input[name=q${questionNumber}]:checked`).val()) {
+                $(`#error-q${questionNumber}`).text('This answer is required.').show();
+                return;
+            } else {
+                $(`#error-q${questionNumber}`).hide();
+            }
+
+            $('#progress .circle').eq(questionNumber - 1).addClass('answered');
+
+            $(`#question${questionNumber}`).hide();
+            let nextQuestion = questionNumber + 1;
+            if (nextQuestion <= totalQuestions) {
+                $(`#question${nextQuestion}`).show();
+            }
+
+            if (nextQuestion > totalQuestions) {
+                $('#submitDiv').show();
+            } else {
+                $('#submitDiv').hide();
+            }
+        }
+
+        $(document).ready(function() {
+            const totalQuestions = 20;
+            let progressHTML = '';
+
+            for (let i = 0; i < totalQuestions; i++) {
+                progressHTML += '<span class="circle"></span>';
+            }
+
+            $('#progress').html(progressHTML);
+            $('.question').not(':first').hide();
+            $('#submitDiv').hide();
+
+            $('input[type="radio"]').change(function() {
+                const name = $(this).attr('name');
+                const questionNumber = parseInt(name.replace('q', '')) - 1;
+                $('#error-q' + (questionNumber + 1)).hide();
+                $('#progress .circle').eq(questionNumber).addClass('answered');
+            });
+        });
+
+    </script>
 </body>
 </html>
