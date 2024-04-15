@@ -82,6 +82,8 @@ async def startup_event():
 
 class EnsureTestCompletionMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
+        if request.url.path.startswith("/static"):
+            return await call_next(request)
         user_email = request.cookies.get('user_email')
         if user_email and is_user_verified(user_email):
             user_data = get_user_progress(user_email)
@@ -320,6 +322,11 @@ async def root(request: Request):
 
 @app.get("/signup")
 async def signup(request: Request):
+    user_email = request.cookies.get('user_email')
+    if user_email:
+        user_data = get_user_progress(user_email)
+        if user_data and not user_data['test_completed']:
+            return RedirectResponse(url="/answers", status_code=303)
     return templates.TemplateResponse("signup.html", {"request": request})
 
 @app.post("/signup")
@@ -330,17 +337,22 @@ async def handle_signup(request: Request, email: str = Form(...), phone: str = F
     surname = format_name(surname)
 
     if user_exists(email, phone):
-        return templates.TemplateResponse("already-registered.html", {"request": request, "email": email, "error": "Email or phone already registered."})
+        user_data = get_user_progress(email)
+        if user_data and not user_data['test_completed']:
+            response = RedirectResponse(url="/answers", status_code=303)
+            response.set_cookie(key="user_email", value=email, httponly=True)
+            return response
+        return templates.TemplateResponse("already-registered.html", {"request": request, "email": email, "error": "Email or phone already registered, and test completed."})
 
     verification_code = generate_verification_code()
     register_user(email, phone, name, surname, verification_code)
-
     store_verification_code(email, verification_code)
     send_email(email, verification_code)
 
     response = templates.TemplateResponse("verify.html", {"request": request, "email": email})
     response.set_cookie(key="user_email", value=email, httponly=True)
     return response
+
 
 
 
