@@ -93,8 +93,8 @@ class EnsureTestCompletionMiddleware(BaseHTTPMiddleware):
 
         if user_email and is_user_verified(user_email, user_phone):
             user_data = get_user_progress(user_email, user_phone)
-            if user_data and not user_data['test_completed'] and request.url.path not in ["/answers", "/logout", "/static"]:
-                return RedirectResponse(url="/answers")
+            if user_data and not user_data['test_completed'] and request.url.path not in ["/questions", "/logout", "/static"]:
+                return RedirectResponse(url="/questions")
 
         return await call_next(request)
 
@@ -341,7 +341,7 @@ async def root(request: Request):
     if user_email and is_user_verified(user_email, user_phone):
         user_data = get_user_progress(user_email, user_phone)
         if user_data and not user_data['test_completed']:
-            return RedirectResponse(url="/answers", status_code=303)
+            return RedirectResponse(url="/questions", status_code=303)
     return RedirectResponse(url="/signup", status_code=303)
 
 @app.get("/signup")
@@ -351,7 +351,7 @@ async def signup(request: Request):
     if user_email:
         user_data = get_user_progress(user_email, user_phone)
         if user_data and not user_data['test_completed']:
-            return RedirectResponse(url="/answers", status_code=303)
+            return RedirectResponse(url="/questions", status_code=303)
     return templates.TemplateResponse("signup.html", {"request": request})
 
 @app.post("/signup")
@@ -364,7 +364,7 @@ async def handle_signup(request: Request, email: str = Form(...), phone: str = F
     if user_exists(email, phone):
         user_data = get_user_progress(email, phone)
         if user_data and not user_data['test_completed']:
-            response = RedirectResponse(url="/answers", status_code=303)
+            response = RedirectResponse(url="/questions", status_code=303)
             response.set_cookie(key="user_email", value=email, httponly=True)
             response.set_cookie(key="user_phone", value=phone, httponly=True)
             return response
@@ -387,7 +387,7 @@ async def handle_signup(request: Request, email: str = Form(...), phone: str = F
 
 
 
-@app.get("/answers")
+@app.get("/questions")
 async def show_answers(request: Request):
     user_email = request.cookies.get('user_email')
     user_phone = request.cookies.get('user_phone')
@@ -450,6 +450,8 @@ async def submit_form(request: Request):
     score = calculate_suitability_score([int(v) for v in responses.values() if v is not None])
     mark_test_as_completed(email, score, phone)
     suitability_description = get_suitability_description(score)
+
+    save_user_progress(email, last_question_completed, responses, phone)
 
     response = templates.TemplateResponse('results.html', {"request": request, "suitability": suitability_description})
     response.delete_cookie(key="user_email")
