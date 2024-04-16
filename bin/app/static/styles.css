@@ -19,8 +19,12 @@ body {
 .container {
     background: linear-gradient(145deg, #fffff0 0%, #ecfcfd 125%);
     padding: 20px;
+    font-size: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    min-width: 700px;
+    width: auto;
+    max-width: 95%;
 }
 
 .interview-form {
@@ -33,17 +37,17 @@ body {
 }
 
 .question p {
-    font-size: 16px;
+    font-size: 26px;
     color: #333;
 }
 
 .submit-btn button {
     padding: 12px 12px;
     width: auto;
-    font-size: 16px;
+    font-size: 20px;
     border-radius: 5px;
     border: none;
-    background-color: #ecfcfd;
+    background-color: #dffdff;
     color: rgb(0, 0, 0);
     cursor: pointer;
     display: inline-block;
@@ -61,6 +65,7 @@ body {
 
 .submit-btn {
     margin-top: 24px;
+    font-size: 26px;
 }
 
 

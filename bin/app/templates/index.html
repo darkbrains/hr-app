@@ -5,18 +5,19 @@
     <meta charset="UTF-8">
     <title>People Connect</title>
     <link rel="stylesheet" href="/static/styles.css?=v3">
-    <link rel="shortcut icon" type="image/x-icon" href="..//static/background_c.webp?v=3" />
+    <link rel="shortcut icon" type="image/x-icon" href="/static/background_c.webp?v=3" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        /* CSS for the user info box */
         #user-info {
             position: absolute;
             top: 10px;
             right: 10px;
-            background-color: #f0f0f0;
             border: 1px solid #ccc;
             padding: 5px 10px;
             border-radius: 5px;
+            background: linear-gradient(145deg, #fffff0 0%, #ecfcfd 125%);
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -24,7 +25,8 @@
 <body>
     <div id="user-info">
         {% if user_data %}
-        <p>Welcome, {{ user_data.name }} {{ user_data.surname }}</p>
+        <p>Welcome, {{ user_data.name }} {{ user_data.surname }}! Have a nice day! 😊</p>
+    </p>
         {% endif %}
     </div>
     <div class="container">

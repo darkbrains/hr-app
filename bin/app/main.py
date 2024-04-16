@@ -9,7 +9,6 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import mysql.connector
 from mysql.connector import Error
-import bcrypt
 import time
 import uvicorn
 import json
@@ -87,12 +86,13 @@ class EnsureTestCompletionMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
 
         user_email = request.cookies.get('user_email')
+        user_phone = request.cookies.get('user_phone')
 
         if request.method == "POST":
             return await call_next(request)
 
-        if user_email and is_user_verified(user_email):
-            user_data = get_user_progress(user_email)
+        if user_email and is_user_verified(user_email, user_phone):
+            user_data = get_user_progress(user_email, user_phone)
             if user_data and not user_data['test_completed'] and request.url.path not in ["/answers", "/logout", "/static"]:
                 return RedirectResponse(url="/answers")
 
@@ -131,7 +131,7 @@ def user_exists(email: str, phone: str):
         try:
             cursor = connection.cursor()
             cursor.execute(
-                "SELECT COUNT(*) FROM USERS WHERE email = %s OR phone = %s",
+                "SELECT COUNT(*) FROM USERS WHERE email = %s AND phone = %s",
                 (email, phone)
             )
             result = cursor.fetchone()
@@ -141,14 +141,14 @@ def user_exists(email: str, phone: str):
             connection.close()
     return False
 
-def is_user_verified(email: str) -> bool:
+def is_user_verified(email: str, phone: str) -> bool:
     connection = create_db_connection()
     if connection:
         try:
             cursor = connection.cursor()
             cursor.execute(
-                "SELECT is_verified FROM USERS WHERE email = %s",
-                (email,)
+                "SELECT is_verified FROM USERS WHERE email = %s AND phone = %s",
+                (email, phone)
             )
             result = cursor.fetchone()
             return result[0] if result else False
@@ -157,14 +157,14 @@ def is_user_verified(email: str) -> bool:
             connection.close()
     return False
 
-def get_user_progress(email: str):
+def get_user_progress(email: str, phone: str):
     connection = create_db_connection()
     if connection:
         try:
             cursor = connection.cursor()
             cursor.execute(
-                "SELECT last_question_completed, answers, test_completed FROM USERS WHERE email = %s",
-                (email,)
+                "SELECT last_question_completed, answers, test_completed FROM USERS WHERE email = %s AND phone = %s",
+                (email, phone)
             )
             result = cursor.fetchone()
             if result:
@@ -210,14 +210,14 @@ def get_verification_code(email: str):
             connection.close()
     return None, None
 
-def mark_user_as_verified(email: str):
+def mark_user_as_verified(email: str, phone: str):
     connection = create_db_connection()
     if connection:
         try:
             cursor = connection.cursor()
             cursor.execute(
-                "UPDATE USERS SET is_verified = TRUE WHERE email = %s",
-                (email,)
+                "UPDATE USERS SET is_verified = TRUE WHERE email = %s AND phone = %s",
+                (email, phone)
             )
             connection.commit()
         finally:
@@ -273,34 +273,51 @@ def get_suitability_description(score):
     else:
         return "Not Suitable"
 
-def mark_test_as_completed(email: str, score: float):
+def mark_test_as_completed(email: str, score: float, phone: str):
     connection = create_db_connection()
     if connection:
         try:
             cursor = connection.cursor()
             cursor.execute(
-                "UPDATE USERS SET test_completed = TRUE, test_score = %s WHERE email = %s",
-                (int(score), email)
+                "UPDATE USERS SET test_completed = TRUE, test_score = %s WHERE email = %s AND phone = %s",
+                (int(score), email, phone)
             )
             connection.commit()
         finally:
             cursor.close()
             connection.close()
 
-def save_user_progress(email: str, last_question_completed: int, answers):
+def save_user_progress(email: str, last_question_completed: int, answers, phone: str):
     connection = create_db_connection()
     if connection:
         try:
             cursor = connection.cursor()
             answers_json = json.dumps(answers)
             cursor.execute(
-                "UPDATE USERS SET last_question_completed = %s, answers = %s WHERE email = %s",
-                (last_question_completed, answers_json, email)
+                "UPDATE USERS SET last_question_completed = %s, answers = %s WHERE email = %s AND phone = %s",
+                (last_question_completed, answers_json, email, phone)
             )
             connection.commit()
         finally:
             cursor.close()
             connection.close()
+
+def get_user_data(email: str, phone: str):
+    connection = create_db_connection()
+    if connection:
+        try:
+            cursor = connection.cursor()
+            cursor.execute(
+                "SELECT name, surname FROM USERS WHERE email = %s AND phone = %s",
+                (email, phone)
+            )
+            result = cursor.fetchone()
+            if result:
+                return {'name': result[0], 'surname': result[1]}
+        finally:
+            cursor.close()
+            connection.close()
+    return None
 
 def format_name(name: str) -> str:
     """Capitalize only the first letter of the name, others are lowercase."""
@@ -320,8 +337,9 @@ def format_email(email: str) -> str:
 @app.get("/")
 async def root(request: Request):
     user_email = request.cookies.get('user_email')
-    if user_email and is_user_verified(user_email):
-        user_data = get_user_progress(user_email)
+    user_phone = request.cookies.get('user_phone')
+    if user_email and is_user_verified(user_email, user_phone):
+        user_data = get_user_progress(user_email, user_phone)
         if user_data and not user_data['test_completed']:
             return RedirectResponse(url="/answers", status_code=303)
     return RedirectResponse(url="/signup", status_code=303)
@@ -329,8 +347,9 @@ async def root(request: Request):
 @app.get("/signup")
 async def signup(request: Request):
     user_email = request.cookies.get('user_email')
+    user_phone = request.cookies.get('user_phone')
     if user_email:
-        user_data = get_user_progress(user_email)
+        user_data = get_user_progress(user_email, user_phone)
         if user_data and not user_data['test_completed']:
             return RedirectResponse(url="/answers", status_code=303)
     return templates.TemplateResponse("signup.html", {"request": request})
@@ -343,12 +362,17 @@ async def handle_signup(request: Request, email: str = Form(...), phone: str = F
     surname = format_name(surname)
 
     if user_exists(email, phone):
-        user_data = get_user_progress(email)
+        user_data = get_user_progress(email, phone)
         if user_data and not user_data['test_completed']:
             response = RedirectResponse(url="/answers", status_code=303)
             response.set_cookie(key="user_email", value=email, httponly=True)
+            response.set_cookie(key="user_phone", value=phone, httponly=True)
             return response
-        return templates.TemplateResponse("already-registered.html", {"request": request, "email": email, "error": "Email or phone already registered, and test completed."})
+        return templates.TemplateResponse("already-registered.html", {
+            "request": request,
+            "email": email,
+            "error": "Email or phone already registered, and test completed."
+        })
 
     verification_code = generate_verification_code()
     register_user(email, phone, name, surname, verification_code)
@@ -357,6 +381,7 @@ async def handle_signup(request: Request, email: str = Form(...), phone: str = F
 
     response = templates.TemplateResponse("verify.html", {"request": request, "email": email})
     response.set_cookie(key="user_email", value=email, httponly=True)
+    response.set_cookie(key="user_phone", value=phone, httponly=True)
     return response
 
 
@@ -365,32 +390,38 @@ async def handle_signup(request: Request, email: str = Form(...), phone: str = F
 @app.get("/answers")
 async def show_answers(request: Request):
     user_email = request.cookies.get('user_email')
-    if not user_email:
+    user_phone = request.cookies.get('user_phone')
+    if not user_email or not user_phone:
         return RedirectResponse(url="/signup", status_code=303)
 
-    user_data = get_user_progress(user_email)
-    if not user_data or user_data['test_completed']:
+    user_data = get_user_data(user_email, user_phone)
+    if not user_data:
         return RedirectResponse(url="/signup", status_code=303)
 
     return templates.TemplateResponse("index.html", {
         "request": request,
-        "last_question_completed": user_data['last_question_completed'],
-        "answers": json.dumps(user_data['answers'])
+        "user_data": user_data
     })
 
 
 @app.post("/verify")
-async def verify(request: Request, email: str = Form(...),
-                 code1: str = Form(...), code2: str = Form(...),
-                 code3: str = Form(...), code4: str = Form(...),
-                 code5: str = Form(...), code6: str = Form(...)):
-    full_code = code1 + code2 + code3 + code4 + code5 + code6
+async def verify(request: Request, code1: str = Form(...), code2: str = Form(...), code3: str = Form(...),
+                 code4: str = Form(...), code5: str = Form(...), code6: str = Form(...)):
+    email = request.cookies.get('user_email')
+    phone = request.cookies.get('user_phone')
+
+    if not email or not phone:
+        return templates.TemplateResponse("verify-error.html", {"request": request, "error": "Session error. Please log in again."})
+
+    full_code = ''.join([code1, code2, code3, code4, code5, code6])
     stored_code, timestamp = get_verification_code(email)
+
     if stored_code is None:
         return templates.TemplateResponse("verify-error.html", {"request": request, "email": email, "error": "Verification code not found"})
+
     current_time = int(time.time())
     if stored_code == full_code and current_time - timestamp <= 300:
-        mark_user_as_verified(email)
+        mark_user_as_verified(email, phone)
         return templates.TemplateResponse("verify-success.html", {"request": request, "email": email})
     else:
         return templates.TemplateResponse("verify-error.html", {"request": request, "email": email, "error": "Invalid verification code or code expired"})
@@ -411,16 +442,18 @@ async def submit_form(request: Request):
         return HTMLResponse(content="All questions must be answered.", status_code=400)
 
     email = request.cookies.get('user_email')
-    if not email:
+    phone = request.cookies.get('user_phone')
+    if not email or not phone:
         return RedirectResponse(url="/signup", status_code=303)
 
     last_question_completed = TOTAL_QUESTIONS
     score = calculate_suitability_score([int(v) for v in responses.values() if v is not None])
-    mark_test_as_completed(email, score)
+    mark_test_as_completed(email, score, phone)
     suitability_description = get_suitability_description(score)
 
     response = templates.TemplateResponse('results.html', {"request": request, "suitability": suitability_description})
     response.delete_cookie(key="user_email")
+    response.delete_cookie(key="user_phone")
     return response
 
 

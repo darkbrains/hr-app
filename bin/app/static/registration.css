@@ -2,7 +2,7 @@ body, html {
     height: 100%;
     margin: 0;
     font-family: Arial, sans-serif;
-    background-color: #f3f3f3;
+    background: linear-gradient(145deg, #fffff0 0%, #ecfcfd 125%);
     background-image: url(/static/background_a.webp);
     justify-content: center;
     background-repeat: no-repeat;
@@ -19,7 +19,7 @@ body, html {
 }
 
 .login-form {
-    background-color: white;
+    background: linear-gradient(145deg, #fffff0 0%, #ecfcfd 125%);
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
