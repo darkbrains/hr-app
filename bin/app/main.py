@@ -15,6 +15,7 @@ import uvicorn
 import json
 from utils.logger import logger
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.base import RequestResponseEndpoint
 
 
 
@@ -81,16 +82,21 @@ async def startup_event():
     create_database_and_tables()
 
 class EnsureTestCompletionMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request, call_next):
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         if request.url.path.startswith("/static"):
             return await call_next(request)
+
         user_email = request.cookies.get('user_email')
+
+        if request.method == "POST":
+            return await call_next(request)
+
         if user_email and is_user_verified(user_email):
             user_data = get_user_progress(user_email)
             if user_data and not user_data['test_completed'] and request.url.path not in ["/answers", "/logout", "/static"]:
                 return RedirectResponse(url="/answers")
-        response = await call_next(request)
-        return response
+
+        return await call_next(request)
 
 app.add_middleware(EnsureTestCompletionMiddleware)
 
