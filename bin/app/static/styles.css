@@ -3,17 +3,28 @@ body {
     background-color: #f3f3f3;
     margin: 0;
     padding: 0;
+    background-image: url(/static/background_e.webp);
     display: flex;
     justify-content: center;
+    background-repeat: no-repeat;
     align-items: center;
+    background-size: cover;
+    background-repeat: no-repeat;
     height: 100vh;
 }
 
+
+
+
 .container {
-    background-color: white;
+    background: linear-gradient(145deg, #fffff0 0%, #ecfcfd 125%);
     padding: 20px;
+    font-size: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    min-width: 700px;
+    width: auto;
+    max-width: 95%;
 }
 
 .interview-form {
@@ -26,18 +37,18 @@ body {
 }
 
 .question p {
-    font-size: 16px;
+    font-size: 26px;
     color: #333;
 }
 
 .submit-btn button {
     padding: 12px 12px;
     width: auto;
-    font-size: 16px;
+    font-size: 20px;
     border-radius: 5px;
     border: none;
-    background-color: #333;
-    color: white;
+    background-color: #dffdff;
+    color: rgb(0, 0, 0);
     cursor: pointer;
     display: inline-block;
 }
@@ -54,11 +65,12 @@ body {
 
 .submit-btn {
     margin-top: 24px;
+    font-size: 26px;
 }
 
 
 input[type="radio"]:checked {
-    accent-color: #272727;
+    accent-color: #0b57d0;
 }
 
 .error {
@@ -68,59 +80,18 @@ input[type="radio"]:checked {
 }
 
 button:hover {
-    background-color: #39ab87;
+    background-color: #b1dbdb;
 }
 
-.dark-mode {
-    background-color: #272727;
-    color: white;
+.circle {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: rgb(216, 216, 216);
+    margin-right: 5px;
 }
 
-.dark-mode .container{
-    background-color: #2e2e2e;
-    color: white;
-}
-
-.dark-mode p{
-    color: white;
-}
-
-.dark-mode input[type="radio"]:checked {
-    accent-color: #39ab87;
-}
-
-
-.dark-mode button {
-    background-color: #39ab87;
-}
-
-.dark-mode button:hover {
-    background-color: #272727;
-}
-
-#theme-toggle {
-    position: fixed;
-    top: 10px;
-    margin-left: auto;
-    margin-right: auto;
-    background: transparent;
-    border: none;
-    font-size: 24px;
-    width: 50px;
-    height: 50px;
-    cursor: pointer;
-    color: #333;
-}
-
-.dark-mode #theme-toggle {
-    color: #f3f3f3;
-}
-
-.moon, .sun {
-    transition: transform 0.3s ease;
-}
-
-#theme-toggle.dark .moon,
-#theme-toggle.light .sun {
-    transform: rotate(-20deg);
+.circle.answered {
+    background-color: rgb(103, 255, 179);
 }
