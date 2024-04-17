@@ -8,4 +8,4 @@ prometheus-client
 python-json-logger
 mysql-connector-python
 bcrypt
-aiocron
+apscheduler

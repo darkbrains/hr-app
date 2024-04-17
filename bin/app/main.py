@@ -15,11 +15,14 @@ from utils.verification_codes import generate_verification_code, store_verificat
 from utils.email_operations import send_email, send_email_with_delay
 from utils.counter import calculate_suitability_score, get_suitability_description
 from utils.envs import TOTAL_QUESTIONS
+from utils.email_resend import setup_scheduler
 
 
 app = FastAPI()
 
+
 app.add_event_handler("startup", create_database_and_tables)
+app.add_event_handler("startup", setup_scheduler)
 app.add_middleware(EnsureTestCompletionMiddleware)
 
 templates = Jinja2Templates(directory="templates")
@@ -165,7 +168,6 @@ async def submit_form(request: Request):
 
         save_user_progress(email, last_question_completed, responses, phone)
 
-        # Schedule sending the email after 5 minutes
         asyncio.create_task(send_email_with_delay(email, score))
 
         response = templates.TemplateResponse('results.html', {
