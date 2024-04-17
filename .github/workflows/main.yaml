@@ -41,7 +41,7 @@ jobs:
       - name: Checkout target repository
         uses: actions/checkout@v4
         with:
-          repository: Dark-brains/live-environments
+          repository: darkbrains/live-environments
           ref: main
           token: ${{ secrets.TOKEN_GITHUB }}
 

@@ -1,5 +1,4 @@
 uvicorn
-pymongo
 fastapi
 jinja2
 pyyaml
