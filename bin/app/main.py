@@ -72,22 +72,28 @@ async def handle_signup(request: Request, email: str = Form(...), phone: str = F
 
         if user_exists(email, phone):
             if is_user_verified(email, phone):
-                return RedirectResponse(url="/questions", status_code=303)
+                user_data = get_user_data(email, phone)
+                if user_data and user_data.get('test_completed'):
+                    return templates.TemplateResponse("already-registrated.html", {"request": request, "email": email})
+                else:
+                    return RedirectResponse(url="/questions", status_code=303)
             else:
                 verification_code = generate_verification_code()
                 update_verification_code(email, verification_code)
                 send_email(email, verification_code)
                 response = templates.TemplateResponse("verify.html", {"request": request, "email": email})
+                response.set_cookie(key="user_email", value=email, httponly=True)
+                response.set_cookie(key="user_phone", value=phone, httponly=True)
+                return response
         else:
             verification_code = generate_verification_code()
             register_user(email, phone, name, surname, verification_code)
             store_verification_code(email, verification_code)
             send_email(email, verification_code)
             response = templates.TemplateResponse("verify.html", {"request": request, "email": email})
-
-        response.set_cookie(key="user_email", value=email, httponly=True)
-        response.set_cookie(key="user_phone", value=phone, httponly=True)
-        return response
+            response.set_cookie(key="user_email", value=email, httponly=True)
+            response.set_cookie(key="user_phone", value=phone, httponly=True)
+            return response
     except Exception as e:
         logger.error(f"Error during signup for user {email}: {e}")
         return templates.TemplateResponse("error.html", {"request": request, "error": "An internal error occurred during signup."})
