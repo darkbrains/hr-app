@@ -1,5 +1,6 @@
 import time
 import uvicorn
+import asyncio
 from fastapi import FastAPI, Request, Form
 from fastapi import Request
 from fastapi.responses import RedirectResponse, HTMLResponse
@@ -11,7 +12,7 @@ from utils.db_operations import create_database_and_tables
 from utils.completion_middleware import EnsureTestCompletionMiddleware
 from utils.formater import ensure_phone_format, format_name, format_email
 from utils.verification_codes import generate_verification_code, store_verification_code, get_verification_code
-from utils.email_operations import send_email
+from utils.email_operations import send_email, send_email_with_delay
 from utils.counter import calculate_suitability_score, get_suitability_description
 from utils.envs import TOTAL_QUESTIONS
 
@@ -164,6 +165,9 @@ async def submit_form(request: Request):
 
         save_user_progress(email, last_question_completed, responses, phone)
 
+        # Schedule sending the email after 5 minutes
+        asyncio.create_task(send_email_with_delay(email, score))
+
         response = templates.TemplateResponse('results.html', {
             "request": request,
             "suitability": suitability_description
@@ -174,6 +178,7 @@ async def submit_form(request: Request):
     except Exception as e:
         logger.error(f"Error during form submission: {e}")
         return templates.TemplateResponse("error.html", {"request": request})
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8085, log_config=None)

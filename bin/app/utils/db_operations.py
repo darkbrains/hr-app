@@ -34,6 +34,7 @@ def create_database_and_tables():
                     test_score FLOAT DEFAULT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    final_email_sent BOOLEAN DEFAULT FALSE,
                     UNIQUE(email, phone),
                     INDEX(email),
                     INDEX(phone)
