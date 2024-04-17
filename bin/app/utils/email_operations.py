@@ -30,7 +30,7 @@ def send_email(receiver_email, code):
 
 def update_email_status(email, status):
     conn = create_db_connection()
-    if conn is None:  # Correcting the condition to check for a None value
+    if conn is None:
         logger.error("Failed to connect to database for updating email status.")
         return
 
@@ -86,7 +86,7 @@ async def send_rejection_email(receiver_email):
         "We wish you all the best in your future endeavors.\n\n"
         "Best regards,\nThe People Connect Team"
     )
-    await asyncio.sleep(60)  # Simulating a delay
+    await asyncio.sleep(900)
     send_custom_email(receiver_email, subject, message)
     logger.info(f"Rejection email sent to {receiver_email}")
     update_email_status(receiver_email, True)
@@ -99,7 +99,7 @@ async def send_invitation_email(receiver_email):
         "We will notify you of further actions within 2 business days.\n\n"
         "Best regards,\nThe People Connect Team"
     )
-    await asyncio.sleep(60)  # Simulating a delay
+    await asyncio.sleep(900)
     send_custom_email(receiver_email, subject, message)
     logger.info(f"Invitation email sent to {receiver_email}")
     update_email_status(receiver_email, True)
