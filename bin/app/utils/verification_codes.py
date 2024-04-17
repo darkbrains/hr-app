@@ -42,7 +42,36 @@ def get_verification_code(email: str):
             connection.close()
     return None, None
 
+
 def generate_verification_code():
-    code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
-    logger.debug(f"Generated verification code: {code}")
-    return code
+    try:
+        code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+        logger.debug(f"Generated verification code: {code}")
+        return code
+    except Exception as e:
+        logger.error(f"Failed to generate verification code: {e}")
+        return None
+
+
+def update_verification_code(email, new_code):
+    connection = create_db_connection()
+    if connection:
+        try:
+            cursor = connection.cursor()
+            cursor.execute(
+                """
+                UPDATE USERS u
+                INNER JOIN VERIFICATION_CODES vc ON u.email = vc.email
+                SET u.verification_code = %s, vc.code = %s, vc.timestamp = %s
+                WHERE u.email = %s
+                """,
+                (new_code, new_code, int(time.time()), email)
+            )
+            connection.commit()
+            logger.info(f"Verification code updated for {email}")
+        except Exception as e:
+            logger.error(f"MySQL error: {e}")
+            raise
+        finally:
+            cursor.close()
+            connection.close()
