@@ -3,7 +3,6 @@ import logging
 import json
 from datetime import datetime
 
-
 class JsonFormatter(logging.Formatter):
     def format(self, record):
         reset = "\033[00m"
@@ -29,18 +28,14 @@ class JsonFormatter(logging.Formatter):
             message = FORMATS[record.levelname] + message + reset
         return message
 
-
-def _get_logger():
-    logger = logging.getLogger(__name__)
-    log_level = os.environ.get("LOG_LEVEL", "INFO")
-    if log_level not in logging._nameToLevel.keys():
-        log_level = "INFO"
-    if not logger.handlers:
-        handler = logging.StreamHandler()
-        handler.setFormatter(JsonFormatter())
-        logger.addHandler(handler)
-        logger.setLevel(log_level)
+def _setup_logger():
+    log_level = os.environ.get("LOG_LEVEL", "INFO").upper()
+    logger = logging.getLogger()
+    logger.handlers = []  # Remove all handlers associated with the root logger.
+    handler = logging.StreamHandler()
+    handler.setFormatter(JsonFormatter())
+    logger.addHandler(handler)
+    logger.setLevel(log_level)
     return logger
 
-
-logger = _get_logger()
+logger = _setup_logger()

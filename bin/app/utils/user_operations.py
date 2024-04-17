@@ -2,8 +2,7 @@ import json
 from utils.logger import logger
 from utils.db_operations import create_db_connection
 
-
-def user_exists(email: str, phone: str):
+def user_exists(email: str, phone: str) -> bool:
     connection = create_db_connection()
     if connection:
         try:
@@ -13,7 +12,11 @@ def user_exists(email: str, phone: str):
                 (email, phone)
             )
             result = cursor.fetchone()
-            return result[0] > 0
+            exists = result[0] > 0
+            logger.debug(f"User exists check for {email}: {exists}")
+            return exists
+        except Exception as e:
+            logger.error(f"Error checking if user exists for {email}: {e}")
         finally:
             cursor.close()
             connection.close()
@@ -29,7 +32,11 @@ def is_user_verified(email: str, phone: str) -> bool:
                 (email, phone)
             )
             result = cursor.fetchone()
-            return result[0] if result else False
+            verified = result[0] if result else False
+            logger.debug(f"Verification status for {email}: {verified}")
+            return verified
+        except Exception as e:
+            logger.error(f"Error verifying user for {email}: {e}")
         finally:
             cursor.close()
             connection.close()
@@ -46,17 +53,20 @@ def get_user_progress(email: str, phone: str):
             )
             result = cursor.fetchone()
             if result:
-                print(f"User {email} progress retrieved: {result}")
-                return {
+                progress = {
                     'last_question_completed': result[0],
                     'answers': json.loads(result[1]) if result[1] else {},
                     'test_completed': result[2]
                 }
+                logger.debug(f"User {email} progress retrieved: {progress}")
+                return progress
+            return None
+        except Exception as e:
+            logger.error(f"Error retrieving user progress for {email}: {e}")
         finally:
             cursor.close()
             connection.close()
     return None
-
 
 def mark_user_as_verified(email: str, phone: str):
     connection = create_db_connection()
@@ -68,6 +78,9 @@ def mark_user_as_verified(email: str, phone: str):
                 (email, phone)
             )
             connection.commit()
+            logger.info(f"User {email} marked as verified.")
+        except Exception as e:
+            logger.error(f"Error marking user as verified for {email}: {e}")
         finally:
             cursor.close()
             connection.close()
@@ -82,6 +95,9 @@ def register_user(email: str, phone: str, name: str, surname: str, verification_
                 (email, phone, name, surname, verification_code)
             )
             connection.commit()
+            logger.info(f"User {email} registered successfully.")
+        except Exception as e:
+            logger.error(f"Error registering user {email}: {e}")
         finally:
             cursor.close()
             connection.close()
@@ -93,9 +109,12 @@ def mark_test_as_completed(email: str, score: float, phone: str):
             cursor = connection.cursor()
             cursor.execute(
                 "UPDATE USERS SET test_completed = TRUE, test_score = %s WHERE email = %s AND phone = %s",
-                (int(score), email, phone)
+                (score, email, phone)
             )
             connection.commit()
+            logger.info(f"Test marked as completed for {email}. Score: {score}")
+        except Exception as e:
+            logger.error(f"Error marking test as completed for {email}: {e}")
         finally:
             cursor.close()
             connection.close()
@@ -111,6 +130,9 @@ def save_user_progress(email: str, last_question_completed: int, answers, phone:
                 (last_question_completed, answers_json, email, phone)
             )
             connection.commit()
+            logger.info(f"User {email}'s progress saved.")
+        except Exception as e:
+            logger.error(f"Error saving user progress for {email}: {e}")
         finally:
             cursor.close()
             connection.close()
@@ -126,7 +148,11 @@ def get_user_data(email: str, phone: str):
             )
             result = cursor.fetchone()
             if result:
-                return {'name': result[0], 'surname': result[1]}
+                data = {'name': result[0], 'surname': result[1]}
+                logger.debug(f"User data retrieved for {email}: {data}")
+                return data
+        except Exception as e:
+            logger.error(f"Error retrieving user data for {email}: {e}")
         finally:
             cursor.close()
             connection.close()
