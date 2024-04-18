@@ -27,6 +27,7 @@ def create_database_and_tables():
                     name VARCHAR(255) NOT NULL,
                     surname VARCHAR(255) NOT NULL,
                     verification_code VARCHAR(6) DEFAULT NULL,
+                    password BLOB DEFAULT NULL,
                     test_completed BOOLEAN DEFAULT FALSE,
                     last_question_completed INT DEFAULT 0,
                     answers JSON DEFAULT NULL,
