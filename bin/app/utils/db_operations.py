@@ -74,3 +74,14 @@ def create_db_connection():
     except Error as e:
         logger.error(f"Error connecting to MySQL database: {e}")
         return None
+
+def check_db_health():
+    try:
+        """Check the health of the database connection."""
+        connection = create_db_connection()
+        if connection and connection.is_connected():
+            connection.close()
+            return True
+        return False
+    except Error as e:
+        logger.error(f"Error in check_db_health(): {e}")
