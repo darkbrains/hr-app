@@ -7,7 +7,7 @@ from fastapi.templating import Jinja2Templates
 from utils.logger import logger
 from utils.user_operations import (
     is_user_verified, get_user_data, user_exists, register_user, mark_user_as_verified, mark_test_as_completed,
-    save_user_progress, check_password, hash_password
+    save_user_progress, check_password
 )
 from utils.db_operations import create_database_and_tables
 from utils.formater import ensure_phone_format, format_name, format_email
@@ -15,7 +15,7 @@ from utils.verification_codes import generate_verification_code, store_verificat
 from utils.email_operations import send_email
 from utils.counter import calculate_suitability_score, get_suitability_description
 from utils.email_resend import setup_scheduler
-from utils.password import password_hash
+from utils.password import hash_password
 
 app = FastAPI()
 
