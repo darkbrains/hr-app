@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from utils.logger import logger
 from utils.user_operations import (
-    is_user_verified, get_user_data, user_exists, register_user, mark_user_as_verified, mark_test_as_completed,
+    is_user_verified, get_user_data, user_exists, register_user, get_user_progress, mark_test_as_completed,
     save_user_progress, check_password
 )
 from utils.db_operations import create_database_and_tables
@@ -15,49 +15,77 @@ from utils.verification_codes import generate_verification_code, store_verificat
 from utils.email_operations import send_email
 from utils.counter import calculate_suitability_score, get_suitability_description
 from utils.email_resend import setup_scheduler
-from utils.password import hash_password
+from utils.envs import TOTAL_QUESTIONS
 
 app = FastAPI()
 
 app.add_event_handler("startup", create_database_and_tables)
 app.add_event_handler("startup", setup_scheduler)
 
+# app.add_middleware(EnsureTestCompletionMiddleware)
+
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
 async def root(request: Request):
-    return RedirectResponse(url="/signup", status_code=303)
+    try:
+        user_email = request.cookies.get('user_email')
+        user_phone = request.cookies.get('user_phone')
+        if user_email and user_phone:
+            if is_user_verified(user_email, user_phone):
+                user_data = get_user_progress(user_email, user_phone)
+                if user_data:
+                    if not user_data['test_completed']:
+                        return RedirectResponse(url="/questions", status_code=303)
+                    else:
+                        return RedirectResponse(url="/results", status_code=303)
+                else:
+                    logger.error(f"No user data found for verified user: {user_email}")
+                    return RedirectResponse(url="/signup", status_code=303)
+            else:
+                return RedirectResponse(url="/signup", status_code=303)
+        return RedirectResponse(url="/signup", status_code=303)
+    except Exception as e:
+        logger.error(f"Error processing root endpoint for user {user_email}: {e}")
+        return RedirectResponse(url="/signup", status_code=303)
 
 @app.get("/signup")
 async def signup(request: Request):
     return templates.TemplateResponse("signup.html", {"request": request})
 
 @app.post("/signup")
-async def handle_signup(request: Request, email: str = Form(...), phone: str = Form(...),
-                        name: str = Form(...), surname: str = Form(...),
-                        password: str = Form(...)):
-    email = format_email(email)
-    phone = ensure_phone_format(phone)
-    name = format_name(name)
-    surname = format_name(surname)
+async def handle_signup(request: Request, email: str = Form(...), phone: str = Form(...), name: str = Form(...), surname: str = Form(...), password: str = Form(...)):
+    try:
+        email = format_email(email)
+        phone = ensure_phone_format(phone)
+        name = format_name(name)
+        surname = format_name(surname)
 
-    if not user_exists(email, phone):
-        hashed_password = hash_password(password)
-        verification_code = generate_verification_code()
-        register_user(email, phone, name, surname, verification_code, hashed_password)
-        store_verification_code(email, verification_code)
-        send_email(email, verification_code)
-        return templates.TemplateResponse("verify.html", {"request": request, "email": email})
+        if user_exists(email, phone):
+            if check_password(email, password):
+                if is_user_verified(email, phone):
+                    user_data = get_user_data(email, phone)
+                    if user_data and not user_data.get('test_completed'):
+                        return RedirectResponse(url="/questions", status_code=303)
+                    return templates.TemplateResponse("already-registrated.html", {"request": request, "email": email})
+                else:
+                    return templates.TemplateResponse("verify.html", {"request": request, "email": email})
+            else:
+                return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid password."})
+        else:
+            verification_code = generate_verification_code()
+            register_user(email, phone, name, surname, verification_code, password)
+            store_verification_code(email, verification_code)
+            send_email(email, verification_code)
+            response = templates.TemplateResponse("verify.html", {"request": request, "email": email})
+            response.set_cookie(key="user_email", value=email, httponly=True)
+            response.set_cookie(key="user_phone", value=phone, httponly=True)
+            return response
+    except Exception as e:
+        logger.error(f"Error during signup for user {email}: {e}")
+        return templates.TemplateResponse("error.html", {"request": request, "error": "An internal error occurred during signup."})
 
-    user_data = get_user_data(email, phone)
-    if user_data and check_password(password, user_data['password_hash']):
-        if is_user_verified(email, phone):
-            if not user_data.get('test_completed'):
-                return RedirectResponse(url="/questions", status_code=303)
-            return templates.TemplateResponse("already-registered.html", {"request": request, "email": email})
-        return templates.TemplateResponse("verify.html", {"request": request, "email": email})
-    return templates.TemplateResponse("error.html", {"request": request, "error": "Incorrect password or user does not exist."})
 
 @app.get("/questions")
 async def show_questions(request: Request, email: str, password: str):
