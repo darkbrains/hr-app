@@ -20,23 +20,23 @@
             <form action="/signup" method="POST">
                 <div class="input-group">
                     <input type="tel" id="phone" name="phone" placeholder="Example +1234567890">
-                    <div class="error" id="phone" style="display:none;"></div>
+                    <div class="error" id="phone-error" style="display:none;"></div>
                 </div>
                 <div class="input-group">
                     <input type="text" id="email" name="email" placeholder="Email">
-                    <div class="error" id="email" style="display:none;"></div>
+                    <div class="error" id="email-error" style="display:none;"></div>
                 </div>
                 <div class="input-group">
                     <input type="text" id="name" name="name" placeholder="Name">
-                    <div class="error" id="name" style="display:none;"></div>
+                    <div class="error" id="name-error" style="display:none;"></div>
                 </div>
                 <div class="input-group">
                     <input type="text" id="surname" name="surname" placeholder="Surname">
-                    <div class="error" id="surname" style="display:none;"></div>
+                    <div class="error" id="surname-error" style="display:none;"></div>
                 </div>
                 <div class="input-group">
                     <input type="password" id="password" name="password" placeholder="Password">
-                    <div class="error" id="password" style="display:none;"></div>
+                    <div class="error" id="password-error" style="display:none;"></div>
                 </div>
                 <button type="submit">Sign up</button>
             </form>
@@ -44,90 +44,84 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
             const emailInput = document.getElementById('email');
             const phoneInput = document.getElementById('phone');
             const nameInput = document.getElementById('name');
             const surnameInput = document.getElementById('surname');
-        
+            const phoneError = document.querySelector('.error#phone-error');
+            const emailError = document.querySelector('.error#email-error');
+            const nameError = document.querySelector('.error#name-error');
+            const surnameError = document.querySelector('.error#surname-error');
             function toggleNameSurnameFields(display) {
                 nameInput.style.display = display ? '' : 'none';
                 surnameInput.style.display = display ? '' : 'none';
-                if (!display) {
-                    nameInput.value = '';
-                    surnameInput.value = '';
+                nameError.style.display = 'none';
+                surnameError.style.display = 'none';
+            }
+            function validateInputs() {
+                let isValid = true;
+                if (!phoneInput.value.trim()) {
+                    phoneError.textContent = 'Phone number is required.';
+                    phoneError.style.display = 'block';
+                    isValid = false;
+                } else if (!/^\+[0-9]{10,14}$/.test(phoneInput.value)) {
+                    phoneError.textContent = 'Please enter a valid phone number with country code.';
+                    phoneError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    phoneError.style.display = 'none';
                 }
+                if (!emailInput.value.trim()) {
+                    emailError.textContent = 'Email is required.';
+                    emailError.style.display = 'block';
+                    isValid = false;
+                } else if (!/\S+@\S+\.\S+/.test(emailInput.value)) {
+                    emailError.textContent = 'Please enter a valid email address.';
+                    emailError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    emailError.style.display = 'none';
+                }
+                if (nameInput.style.display !== 'none' && !nameInput.value.trim()) {
+                    nameError.textContent = 'Name is required.';
+                    nameError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    nameError.style.display = 'none';
+                }
+                if (surnameInput.style.display !== 'none' && !surnameInput.value.trim()) {
+                    surnameError.textContent = 'Surname is required.';
+                    surnameError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    surnameError.style.display = 'none';
+                }
+                return isValid;
             }
-        
-            async function checkUser() {
-                const response = await fetch('/check-user', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `email=${encodeURIComponent(emailInput.value)}&phone=${encodeURIComponent(phoneInput.value)}`
-                });
-                const data = await response.json();
-                toggleNameSurnameFields(!data.exists);
-            }
-        
-            emailInput.addEventListener('blur', checkUser);
-            phoneInput.addEventListener('blur', checkUser);
-        });
-        </script>
-        
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.querySelector('form');
-
             form.addEventListener('submit', function(event) {
-                let hasError = false;
-
-                const phoneInput = document.getElementById('phone');
-                if (!phoneInput.value.trim() || !/^\+[0-9]{10,12}$/.test(phoneInput.value)) {
-                    const errorDiv = document.querySelector('.error#phone');
-                    errorDiv.textContent = 'Please enter a valid phone number (e.g., +1234567890).';
-                    errorDiv.style.display = 'block';
-                    hasError = true;
-                } else {
-                    document.querySelector('.error#phone').style.display = 'none';
-                }
-
-                const emailInput = document.getElementById('email');
-                if (!emailInput.value.trim() || !/^\S+@\S+\.\S+$/.test(emailInput.value)) {
-                    const errorDiv = document.querySelector('.error#email');
-                    errorDiv.textContent = 'Please enter a valid email address.';
-                    errorDiv.style.display = 'block';
-                    hasError = true;
-                } else {
-                    document.querySelector('.error#email').style.display = 'none';
-                }
-
-                const nameInput = document.getElementById('name');
-                if (!nameInput.value.trim()) {
-                    const errorDiv = document.querySelector('.error#name');
-                    errorDiv.textContent = 'Name is required.';
-                    errorDiv.style.display = 'block';
-                    hasError = true;
-                } else {
-                    document.querySelector('.error#name').style.display = 'none';
-                }
-
-                const surnameInput = document.getElementById('surname');
-                if (!surnameInput.value.trim()) {
-                    const errorDiv = document.querySelector('.error#surname');
-                    errorDiv.textContent = 'Surname is required.';
-                    errorDiv.style.display = 'block';
-                    hasError = true;
-                } else {
-                    document.querySelector('.error#surname').style.display = 'none';
-                }
-
-                if (hasError) {
-                    event.preventDefault();
+                event.preventDefault();
+                if (validateInputs()) {
+                    form.submit();
                 }
             });
+            async function checkUser() {
+                if (emailInput.value && phoneInput.value) {
+                    const response = await fetch('/api/v1/check-user', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                        body: `email=${encodeURIComponent(emailInput.value)}&phone=${encodeURIComponent(phoneInput.value)}`
+                    });
+                    const data = await response.json();
+                    toggleNameSurnameFields(!data.exists);
+                } else {
+                    toggleNameSurnameFields(false);
+                }
+            }
+            emailInput.addEventListener('blur', checkUser);
+            phoneInput.addEventListener('blur', checkUser);
+            checkUser();
         });
         </script>
-
 </body>
 </html>

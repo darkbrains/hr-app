@@ -65,7 +65,7 @@ async def signup(request: Request):
 
 
 @app.post("/signup")
-async def handle_signup(request: Request, email: str = Form(...), phone: str = Form(...), name: str = Form(...), surname: str = Form(...), password: str = Form(...)):
+async def handle_signup(request: Request, email: str = Form(...), phone: str = Form(...), name: str = Form(None), surname: str = Form(None), password: str = Form(...)):
     try:
         email = format_email(email)
         name = format_name(name)
