@@ -10,7 +10,7 @@ from utils.user_operations import (
     get_user_data, register_user, mark_test_as_completed,
     save_user_progress, check_password, mark_user_as_verified
 )
-from utils.db_operations import create_database_and_tables
+from utils.db_operations import create_database_and_tables, check_db_health
 from utils.formater import format_name, format_email
 from utils.verification_codes import generate_verification_code, store_verification_code, get_verification_code, update_verification_code
 from utils.email_operations import send_email
@@ -248,6 +248,26 @@ async def check_user_exists(request: Request, email: str = Form(...), phone: str
     user_data = get_user_data(email, phone)
     exists = bool(user_data)
     return JSONResponse(content={"exists": exists})
+
+
+@app.get("/api/v1/healthz")
+async def health_check(request: Request):
+    """Health check endpoint to verify database connectivity."""
+    try:
+        if check_db_health():
+            return {"status": "Healthy"}
+        else:
+            return templates.TemplateResponse(
+                "error.html",
+                {
+                    "request": request,
+                    "error": "Database connection is unhealthy.",
+                    "status_code": 503
+                },
+                status_code=503
+            )
+    except Exception as e:
+        logger.error(f"Error in  health_check(): {e}")
 
 
 if __name__ == "__main__":
