@@ -6,5 +6,5 @@ python-multipart
 prometheus-client
 python-json-logger
 mysql-connector-python
-bcrypt
+hashlib
 apscheduler

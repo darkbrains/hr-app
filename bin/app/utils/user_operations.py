@@ -151,7 +151,6 @@ def check_password(email: str, password: str) -> bool:
             if result:
                 stored_hash = bytes(result[0]).decode('utf-8') if isinstance(result[0], bytearray) else result[0]
                 provided_hash = hash_password(password)
-                print(f"Stored hash: {stored_hash}, Provided hash: {provided_hash}")
                 return provided_hash == stored_hash
             return False
         except Exception as e:

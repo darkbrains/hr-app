@@ -44,6 +44,39 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const emailInput = document.getElementById('email');
+            const phoneInput = document.getElementById('phone');
+            const nameInput = document.getElementById('name');
+            const surnameInput = document.getElementById('surname');
+        
+            function toggleNameSurnameFields(display) {
+                nameInput.style.display = display ? '' : 'none';
+                surnameInput.style.display = display ? '' : 'none';
+                if (!display) {
+                    nameInput.value = '';
+                    surnameInput.value = '';
+                }
+            }
+        
+            async function checkUser() {
+                const response = await fetch('/check-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `email=${encodeURIComponent(emailInput.value)}&phone=${encodeURIComponent(phoneInput.value)}`
+                });
+                const data = await response.json();
+                toggleNameSurnameFields(!data.exists);
+            }
+        
+            emailInput.addEventListener('blur', checkUser);
+            phoneInput.addEventListener('blur', checkUser);
+        });
+        </script>
+        
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
             const form = document.querySelector('form');
 
             form.addEventListener('submit', function(event) {
