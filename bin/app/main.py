@@ -15,6 +15,7 @@ from utils.verification_codes import generate_verification_code, store_verificat
 from utils.email_operations import send_email
 from utils.counter import calculate_suitability_score, get_suitability_description
 from utils.email_resend import setup_scheduler
+from utils.password import password_hash
 
 app = FastAPI()
 
