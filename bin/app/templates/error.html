@@ -8,10 +8,18 @@
     <link rel="stylesheet" href="/static/registration.css?v=3">
 </head>
 <body>
-    <div class="error-container">
-        <h1>Oops! Something went wrong.</h1>
-        <p>{{ error }}</p>
-        <a href="/">Go Back Home</a>
+    <div class="login-container">
+        <div class="login-form">
+            <input type="hidden" name="email" value="{{ email }}">
+            <input type="hidden" name="phone" value="{{ phone }}">
+            <input type="hidden" name="auth_token" value="{{ auth_token }}">
+            <h1>Oops! Something went wrong.</h1>
+            <div class="error-img">
+                <img src="/static/error.png?v=3">
+            </div>
+            <p>{{ error }}</p>
+            <a href="/">Go Back Home</a>
+        </div>
     </div>
 </body>
 </html>
