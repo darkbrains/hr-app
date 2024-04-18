@@ -16,14 +16,14 @@ from utils.email_operations import send_email, send_email_with_delay
 from utils.counter import calculate_suitability_score, get_suitability_description
 from utils.envs import TOTAL_QUESTIONS
 from utils.email_resend import setup_scheduler
-
+from utils.password import hash_password
 
 app = FastAPI()
 
 
 app.add_event_handler("startup", create_database_and_tables)
 app.add_event_handler("startup", setup_scheduler)
-app.add_middleware(EnsureTestCompletionMiddleware)
+# app.add_middleware(EnsureTestCompletionMiddleware)
 
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -32,25 +32,10 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/")
 async def root(request: Request):
     try:
-        user_email = request.cookies.get('user_email')
-        user_phone = request.cookies.get('user_phone')
-        if user_email and user_phone:
-            if is_user_verified(user_email, user_phone):
-                user_data = get_user_progress(user_email, user_phone)
-                if user_data:
-                    if not user_data['test_completed']:
-                        return RedirectResponse(url="/questions", status_code=303)
-                    else:
-                        return RedirectResponse(url="/results", status_code=303)
-                else:
-                    logger.error(f"No user data found for verified user: {user_email}")
-                    return RedirectResponse(url="/signup", status_code=303)
-            else:
-                return RedirectResponse(url="/signup", status_code=303)
         return RedirectResponse(url="/signup", status_code=303)
     except Exception as e:
-        logger.error(f"Error processing root endpoint for user {user_email}: {e}")
-        return RedirectResponse(url="/signup", status_code=303)
+        logger.error(f"Error processing root endpoint: {e}")
+        return templates.TemplateResponse("errors.html", {"request": request, "error": "Error processing root endpoint"})
 
 
 @app.get("/signup")
@@ -63,36 +48,44 @@ async def signup(request: Request):
 
 
 @app.post("/signup")
-async def handle_signup(request: Request, email: str = Form(...), phone: str = Form(...), name: str = Form(...), surname: str = Form(...), password: str = Form(...)):
+async def handle_signup(request: Request, email: str = Form(...), phone: str = Form(...),
+                        name: str = Form(...), surname: str = Form(...),
+                        password: str = Form(...)):
     try:
         email = format_email(email)
         phone = ensure_phone_format(phone)
         name = format_name(name)
         surname = format_name(surname)
 
+        # Check if user exists
         if user_exists(email, phone):
-            if check_password(email, password):
-                if is_user_verified(email, phone):
-                    user_data = get_user_data(email, phone)
-                    if user_data and not user_data.get('test_completed'):
-                        return RedirectResponse(url="/questions", status_code=303)
-                    return templates.TemplateResponse("already-registrated.html", {"request": request, "email": email})
-                else:
-                    return templates.TemplateResponse("verify.html", {"request": request, "email": email})
+            # If user exists, check verification status
+            if is_user_verified(email, phone):
+                # If user is verified, but test not completed, render signup page again
+                if not get_user_data(email, phone).get('test_completed'):
+                    return templates.TemplateResponse("signup.html", {"request": request, "message": "You are already verified. Please complete the test."})
+                # If user is verified and test is completed, show already registered page
+                return templates.TemplateResponse("already-registered.html", {"request": request, "email": email})
             else:
-                return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid password."})
+                # If user exists but not verified, allow verification
+                return templates.TemplateResponse("verify.html", {"request": request, "email": email})
         else:
-            verification_code = generate_verification_code()
-            register_user(email, phone, name, surname, verification_code, password)
-            store_verification_code(email, verification_code)
-            send_email(email, verification_code)
-            response = templates.TemplateResponse("verify.html", {"request": request, "email": email})
-            response.set_cookie(key="user_email", value=email, httponly=True)
-            response.set_cookie(key="user_phone", value=phone, httponly=True)
-            return response
+            # If user does not exist, check password
+            if check_password(email, password):
+                # If password is correct, proceed to the test page
+                hashed_password = hash_password(password)  # Hash the password
+                verification_code = generate_verification_code()  # Generate verification code
+                register_user(email, phone, name, surname, verification_code, hashed_password)  # Register user
+                store_verification_code(email, verification_code)  # Store verification code
+                send_email(email, verification_code)  # Send verification email
+                return RedirectResponse(url="/questions", status_code=303)
+            else:
+                # If password is incorrect, render error page
+                return templates.TemplateResponse("error.html", {"request": request, "error": "Incorrect password."})
     except Exception as e:
         logger.error(f"Error during signup for user {email}: {e}")
-        return templates.TemplateResponse("error.html", {"request": request, "error": "An internal error occurred during signup."})
+        return templates.TemplateResponse("errors.html", {"request": request, "error": "An internal error occurred during signup."})
+
 
 
 @app.get("/questions")
