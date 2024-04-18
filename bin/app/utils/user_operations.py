@@ -122,7 +122,7 @@ def mark_test_as_completed(email: str, score: float, phone: str):
             cursor.close()
             connection.close()
 
-def save_user_progress(email: str, last_question_completed: int, answers, phone: str):
+def save_user_progress(email: str, last_question_completed: int, answers: dict, phone: str):
     connection = create_db_connection()
     if connection:
         try:

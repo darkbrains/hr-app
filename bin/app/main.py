@@ -8,14 +8,14 @@ from fastapi import HTTPException
 from fastapi.templating import Jinja2Templates
 from utils.logger import logger
 from utils.user_operations import (
-    is_user_verified, get_user_data, register_user, mark_test_as_completed,
+    get_user_data, register_user, mark_test_as_completed,
     save_user_progress, check_password, mark_user_as_verified
 )
 from utils.db_operations import create_database_and_tables
 from utils.formater import format_name, format_email
 from utils.verification_codes import generate_verification_code, store_verification_code, get_verification_code, update_verification_code
 from utils.email_operations import send_email
-from utils.counter import calculate_suitability_score, get_suitability_description
+from utils.counter import calculate_suitability_score
 from utils.email_resend import setup_scheduler
 from utils.envs import TOTAL_QUESTIONS
 from utils.password import hash_password
@@ -75,8 +75,7 @@ async def handle_signup(request: Request,
             if is_verified:
                 test_completed = user_data.get('test_completed', False)
                 if not test_completed:
-                    # Generate token and redirect securely
-                    token = generate_token(email, phone)  # pass both email and phone
+                    token = generate_token(email, phone)
                     response = RedirectResponse(url=f"/questions?token={token}", status_code=303)
                     return response
                 else:
@@ -85,7 +84,8 @@ async def handle_signup(request: Request,
                 new_code = generate_verification_code()
                 update_verification_code(email, new_code)
                 send_email(email, new_code)
-                return templates.TemplateResponse("verify.html", {"request": request, "email": email, "phone": phone})
+                token = generate_token(email, phone)
+                return templates.TemplateResponse("verify.html", {"request": request, "email": email, "phone": phone, "auth_token": token})
         else:
             raise HTTPException(status_code=401, detail="Incorrect password")
     else:
@@ -93,7 +93,8 @@ async def handle_signup(request: Request,
         register_user(email, phone, name, surname, verification_code, hashed_password)
         store_verification_code(email, verification_code)
         send_email(email, verification_code)
-        return templates.TemplateResponse("verify.html", {"request": request, "email": email, "phone": phone})
+        token = generate_token(email, phone)
+        return templates.TemplateResponse("verify.html", {"request": request, "email": email, "phone": phone, "auth_token": token})
 
 
 @app.get("/questions")
@@ -115,7 +116,7 @@ async def show_questions(request: Request, token: str):
 async def submit_form(request: Request, auth_token: str = Form(...)):
     token_data = get_user_data_from_token(auth_token)
     if not token_data:
-        return HTMLResponse(content="Session expired or invalid. Please login again.", status_code=401)
+        return HTMLResponse(content="Session expired or invalid. Please log in again.", status_code=401)
 
     email = token_data['email']
     phone = token_data['phone']
@@ -129,13 +130,26 @@ async def submit_form(request: Request, auth_token: str = Form(...)):
         return HTMLResponse(content="All questions must be answered.", status_code=400)
 
     score = calculate_suitability_score([int(v) for v in responses.values() if v is not None])
-    mark_test_as_completed(score, email, phone)
-    save_user_progress(TOTAL_QUESTIONS, responses, email, phone)
+    mark_test_as_completed(email, score, phone)
+    save_user_progress(email, TOTAL_QUESTIONS, responses, phone)
+    return templates.TemplateResponse("results.html", {"request": request})
 
-    logger.info(score)
+@app.get("/verify")
+async def show_questions(request: Request, token: str):
+    token_data = get_user_data_from_token(token)
+    if not token_data:
+        raise HTTPException(status_code=401, detail="Unauthorized access")
+    email = token_data['email']
+    phone = token_data['phone']
+    user_data = get_user_data(email, phone)
+    if not user_data:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return templates.TemplateResponse("index.html", {"request": request, "user_data": user_data, "auth_token": token})
+
 
 @app.post("/verify")
-async def verify(request: Request,
+async def verify(request: Request, token: str = Form(...),
                  email: str = Form(...), phone: str = Form(...),
                  code1: str = Form(...), code2: str = Form(...), code3: str = Form(...),
                  code4: str = Form(...), code5: str = Form(...), code6: str = Form(...)):
@@ -150,7 +164,15 @@ async def verify(request: Request,
         current_time = int(time.time())
         if stored_code == full_code and current_time - timestamp <= 300:
             mark_user_as_verified(email, phone)
-            return templates.TemplateResponse("verify-success.html", {"request": request, "email": email})
+            token_data = get_user_data_from_token(token)
+            if not token_data:
+                raise HTTPException(status_code=401, detail="Unauthorized access")
+            email = token_data['email']
+            phone = token_data['phone']
+            user_data = get_user_data(email, phone)
+            if not user_data:
+                raise HTTPException(status_code=404, detail="User not found")
+            return templates.TemplateResponse("verify-success.html", {"request": request, "email": email, "auth_token": token})
         elif current_time - timestamp > 300:
             new_code = generate_verification_code()
             update_verification_code(email, new_code)

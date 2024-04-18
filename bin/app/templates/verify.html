@@ -61,10 +61,11 @@
         <div class="login-form">
             <h1>Verify Your Account</h1>
             <p>We have sent a verification code to your email. Please check your inbox.</p>
-            <form id="v1" action="/verify" method="post">
+            <form id="v1" action="/verify" method="POST">
                 <div class="code-input-group">
                     <input type="hidden" name="email" value="{{ email }}">
                     <input type="hidden" name="phone" value="{{ phone }}">
+                    <input type="hidden" name="token" value="{{ auth_token }}">
                     <input class="code-input" type="text" name="code1" maxlength="1" pattern="[0-9]{1}" required>
                     <input class="code-input" type="text" name="code2" maxlength="1" pattern="[0-9]{1}" required>
                     <input class="code-input" type="text" name="code3" maxlength="1" pattern="[0-9]{1}" required>
