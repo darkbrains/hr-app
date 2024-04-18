@@ -72,34 +72,46 @@ def send_custom_email(receiver_email, subject, message):
     except Exception as e:
         logger.error(f"Unexpected error occurred while sending email to {receiver_email}: {e}")
 
+
 async def send_email_with_delay(email, score):
-    if score < 50:
-        await send_rejection_email(email)
-    else:
-        await send_invitation_email(email)
+    try:
+        if score < 50:
+            await send_rejection_email(email)
+        else:
+            await send_invitation_email(email)
+    except Exception as e:
+        logger.error(f'Error in send_email_with_delay() function: {e}')
+
 
 async def send_rejection_email(receiver_email):
-    subject = "Thank You for Your Participation"
-    message = (
-        "Thank you for your time and patience throughout the interview process.\n\n"
-        "We regret to inform you that your result did not qualify for the next stage of the recruitment process.\n\n"
-        "We wish you all the best in your future endeavors.\n\n"
-        "Best regards,\nThe People Connect Team"
-    )
-    await asyncio.sleep(900)
-    send_custom_email(receiver_email, subject, message)
-    logger.info(f"Rejection email sent to {receiver_email}")
-    update_email_status(receiver_email, True)
+    try:
+        subject = "Thank You for Your Participation"
+        message = (
+            "Thank you for your time and patience throughout the interview process.\n\n"
+            "We regret to inform you that your result did not qualify for the next stage of the recruitment process.\n\n"
+            "We wish you all the best in your future endeavors.\n\n"
+            "Best regards,\nThe People Connect Team"
+        )
+        await asyncio.sleep(900)
+        send_custom_email(receiver_email, subject, message)
+        logger.info(f"Rejection email sent to {receiver_email}")
+        update_email_status(receiver_email, True)
+    except Exception as e:
+        logger.error(f'Error in send_rejection_email() function: {e}')
+
 
 async def send_invitation_email(receiver_email):
-    subject = "Congratulations - Next Steps in People Connect"
-    message = (
-        "Congratulations on successfully passing the initial screening!\n\n"
-        "We are pleased to invite you to the next interview stage for a specific position with our company.\n\n"
-        "We will notify you of further actions within 2 business days.\n\n"
-        "Best regards,\nThe People Connect Team"
-    )
-    await asyncio.sleep(900)
-    send_custom_email(receiver_email, subject, message)
-    logger.info(f"Invitation email sent to {receiver_email}")
-    update_email_status(receiver_email, True)
+    try:
+        subject = "Congratulations - Next Steps in People Connect"
+        message = (
+            "Congratulations on successfully passing the initial screening!\n\n"
+            "We are pleased to invite you to the next interview stage for a specific position with our company.\n\n"
+            "We will notify you of further actions within 2 business days.\n\n"
+            "Best regards,\nThe People Connect Team"
+        )
+        await asyncio.sleep(900)
+        send_custom_email(receiver_email, subject, message)
+        logger.info(f"Invitation email sent to {receiver_email}")
+        update_email_status(receiver_email, True)
+    except Exception as e:
+        logger.error(f'Error in send_invitation_email() function: {e}')

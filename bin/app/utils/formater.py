@@ -1,6 +1,8 @@
 from utils.logger import logger
 
 def format_name(name: str) -> str:
+    if name is None:
+        return None
     """Capitalize only the first letter of the name, others are lowercase."""
     try:
         formatted_name = name.strip().capitalize()

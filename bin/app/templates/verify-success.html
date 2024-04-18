@@ -6,11 +6,14 @@
     <link rel="shortcut icon" type="image/x-icon" href="/static/background_c.webp?v=3"/>
     <title>People Connect</title>
     <link rel="stylesheet" href="/static/registration.css?v=3">
-    <meta http-equiv="refresh" content="7; url={{ url }}">
+    <meta http-equiv="refresh" content="4; url={{ url }}/questions?token={{ auth_token }}">
 </head>
 <body>
     <div class="login-container">
         <div class="login-form">
+            <input type="hidden" name="email" value="{{ email }}">
+            <input type="hidden" name="phone" value="{{ phone }}">
+            <input type="hidden" name="auth_token" value="{{ auth_token }}">
             <h1>Registration Successful</h1>
             <div class="success-img">
                 <img src="/static/success.png?v=3">

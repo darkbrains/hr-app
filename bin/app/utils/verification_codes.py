@@ -53,7 +53,7 @@ def generate_verification_code():
         return None
 
 
-def update_verification_code(email, new_code):
+def update_verification_code(email: str, new_code: str):
     connection = create_db_connection()
     if connection:
         try:
@@ -68,10 +68,9 @@ def update_verification_code(email, new_code):
                 (new_code, new_code, int(time.time()), email)
             )
             connection.commit()
-            logger.info(f"Verification code updated for {email}")
+            logger.info(f"Updated verification code for {email} in USERS and VERIFICATION_CODES via cascade.")
         except Exception as e:
-            logger.error(f"MySQL error: {e}")
-            raise
+            logger.error(f"Failed to update verification code for {email}: {e}")
         finally:
             cursor.close()
             connection.close()

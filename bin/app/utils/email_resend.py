@@ -4,13 +4,13 @@ from utils.logger import logger
 from utils.email_operations import send_invitation_email, send_rejection_email, update_email_status
 
 async def resend_emails():
-    conn = create_db_connection()
-    if conn is None:
+    connection = create_db_connection()
+    if connection is None:
         logger.error("Failed to connect to database to resend emails.")
         return
 
     try:
-        cursor = conn.cursor()
+        cursor = connection.cursor()
         cursor.execute(
             """
             SELECT email, test_score, final_email_sent FROM USERS
@@ -33,14 +33,14 @@ async def resend_emails():
     finally:
         if cursor:
             cursor.close()
-        if conn:
-            conn.close()
+        if connection:
+            connection.close()
 
 
 def setup_scheduler():
     try:
         scheduler = AsyncIOScheduler()
-        scheduler.add_job(resend_emails, 'interval', minutes=15)
+        scheduler.add_job(resend_emails, 'interval', minutes=10)
         scheduler.start()
         logger.info("Scheduler has been set up and started.")
     except Exception as e:

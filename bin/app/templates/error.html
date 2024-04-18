@@ -5,23 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" type="image/x-icon" href="/static/background_c.webp?v=3"/>
     <title>People Connect</title>
-    <link rel="stylesheet" href="/static/registration.css?=v3">
+    <link rel="stylesheet" href="/static/registration.css?v=3">
 </head>
 <body>
     <div class="login-container">
         <div class="login-form">
-            <h1>Verification Error</h1>
-            <p>Invalid verification code.</p>
+            <input type="hidden" name="email" value="{{ email }}">
+            <input type="hidden" name="phone" value="{{ phone }}">
+            <input type="hidden" name="auth_token" value="{{ auth_token }}">
+            <h1>Oops! Something went wrong.</h1>
             <div class="error-img">
                 <img src="/static/oops_b.webp?v=3">
             </div>
-            <button onclick="goBack()" class="button">Try Again</button>
+            <p>{{ error }}</p>
+            <a href="/">Go Back Home</a>
         </div>
     </div>
-    <script>
-        function goBack() {
-            window.history.back();
-        }
-    </script>
 </body>
 </html>
