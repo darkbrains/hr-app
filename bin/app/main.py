@@ -7,7 +7,7 @@ from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from utils.logger import logger
-from utils.user_operations import is_user_verified, get_user_progress, user_exists, register_user, get_user_data, mark_user_as_verified, mark_test_as_completed, save_user_progress
+from utils.user_operations import is_user_verified, get_user_progress, user_exists, register_user, get_user_data, mark_user_as_verified, mark_test_as_completed, save_user_progress, check_password
 from utils.db_operations import create_database_and_tables
 from utils.completion_middleware import EnsureTestCompletionMiddleware
 from utils.formater import ensure_phone_format, format_name, format_email
@@ -63,7 +63,7 @@ async def signup(request: Request):
 
 
 @app.post("/signup")
-async def handle_signup(request: Request, email: str = Form(...), phone: str = Form(...), name: str = Form(...), surname: str = Form(...)):
+async def handle_signup(request: Request, email: str = Form(...), phone: str = Form(...), name: str = Form(...), surname: str = Form(...), password: str = Form(...)):
     try:
         email = format_email(email)
         phone = ensure_phone_format(phone)
@@ -71,23 +71,19 @@ async def handle_signup(request: Request, email: str = Form(...), phone: str = F
         surname = format_name(surname)
 
         if user_exists(email, phone):
-            if is_user_verified(email, phone):
-                user_data = get_user_data(email, phone)
-                if user_data and user_data.get('test_completed'):
+            if check_password(email, password):
+                if is_user_verified(email, phone):
+                    user_data = get_user_data(email, phone)
+                    if user_data and not user_data.get('test_completed'):
+                        return RedirectResponse(url="/questions", status_code=303)
                     return templates.TemplateResponse("already-registrated.html", {"request": request, "email": email})
                 else:
-                    return RedirectResponse(url="/questions", status_code=303)
+                    return templates.TemplateResponse("verify.html", {"request": request, "email": email})
             else:
-                verification_code = generate_verification_code()
-                update_verification_code(email, verification_code)
-                send_email(email, verification_code)
-                response = templates.TemplateResponse("verify.html", {"request": request, "email": email})
-                response.set_cookie(key="user_email", value=email, httponly=True)
-                response.set_cookie(key="user_phone", value=phone, httponly=True)
-                return response
+                return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid password."})
         else:
             verification_code = generate_verification_code()
-            register_user(email, phone, name, surname, verification_code)
+            register_user(email, phone, name, surname, verification_code, password)
             store_verification_code(email, verification_code)
             send_email(email, verification_code)
             response = templates.TemplateResponse("verify.html", {"request": request, "email": email})

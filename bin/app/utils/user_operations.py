@@ -1,6 +1,7 @@
 import json
 from utils.logger import logger
 from utils.db_operations import create_db_connection
+from utils.password import hash_password
 
 def user_exists(email: str, phone: str) -> bool:
     connection = create_db_connection()
@@ -85,14 +86,15 @@ def mark_user_as_verified(email: str, phone: str):
             cursor.close()
             connection.close()
 
-def register_user(email: str, phone: str, name: str, surname: str, verification_code: str):
+def register_user(email: str, phone: str, name: str, surname: str, verification_code: str, password: str):
     connection = create_db_connection()
+    password_hash = hash_password(password)
     if connection:
         try:
             cursor = connection.cursor()
             cursor.execute(
-                "INSERT INTO USERS (email, phone, name, surname, verification_code) VALUES (%s, %s, %s, %s, %s)",
-                (email, phone, name, surname, verification_code)
+                "INSERT INTO USERS (email, phone, name, surname, verification_code, password) VALUES (%s, %s, %s, %s, %s, %s)",
+                (email, phone, name, surname, verification_code, password_hash)
             )
             connection.commit()
             logger.info(f"User {email} registered successfully.")
@@ -101,6 +103,7 @@ def register_user(email: str, phone: str, name: str, surname: str, verification_
         finally:
             cursor.close()
             connection.close()
+
 
 def mark_test_as_completed(email: str, score: float, phone: str):
     connection = create_db_connection()
@@ -157,3 +160,24 @@ def get_user_data(email: str, phone: str):
             cursor.close()
             connection.close()
     return None
+
+def check_password(email: str, password: str) -> bool:
+    connection = create_db_connection()
+    if connection:
+        try:
+            cursor = connection.cursor()
+            cursor.execute(
+                "SELECT password FROM USERS WHERE email = %s",
+                (email,)
+            )
+            result = cursor.fetchone()
+            if result:
+                stored_hash = result[0]
+                return hash_password(password) == stored_hash
+            return False
+        except Exception as e:
+            logger.error(f"Error checking password for {email}: {e}")
+        finally:
+            cursor.close()
+            connection.close()
+    return False
