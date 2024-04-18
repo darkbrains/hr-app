@@ -63,6 +63,8 @@
             <p>We have sent a verification code to your email. Please check your inbox.</p>
             <form id="v1" action="/verify" method="post">
                 <div class="code-input-group">
+                    <input type="hidden" name="email" value="{{ email }}">
+                    <input type="hidden" name="phone" value="{{ phone }}">
                     <input class="code-input" type="text" name="code1" maxlength="1" pattern="[0-9]{1}" required>
                     <input class="code-input" type="text" name="code2" maxlength="1" pattern="[0-9]{1}" required>
                     <input class="code-input" type="text" name="code3" maxlength="1" pattern="[0-9]{1}" required>

@@ -43,31 +43,33 @@ def is_user_verified(email: str, phone: str) -> bool:
             connection.close()
     return False
 
-def get_user_progress(email: str, phone: str):
+def get_user_data(email: str, phone: str):
     connection = create_db_connection()
     if connection:
         try:
             cursor = connection.cursor()
             cursor.execute(
-                "SELECT last_question_completed, answers, test_completed FROM USERS WHERE email = %s AND phone = %s",
+                "SELECT name, surname, password, is_verified, test_completed FROM USERS WHERE email = %s AND phone = %s",
                 (email, phone)
             )
             result = cursor.fetchone()
             if result:
-                progress = {
-                    'last_question_completed': result[0],
-                    'answers': json.loads(result[1]) if result[1] else {},
-                    'test_completed': result[2]
+                data = {
+                    'name': result[0],
+                    'surname': result[1],
+                    'password_hash': result[2],
+                    'is_verified': result[3],
+                    'test_completed': result[4]
                 }
-                logger.debug(f"User {email} progress retrieved: {progress}")
-                return progress
-            return None
+                logger.debug(f"User data retrieved for {email}: {data}")
+                return data
         except Exception as e:
-            logger.error(f"Error retrieving user progress for {email}: {e}")
+            logger.error(f"Error retrieving user data for {email}: {e}")
         finally:
             cursor.close()
             connection.close()
     return None
+
 
 def mark_user_as_verified(email: str, phone: str):
     connection = create_db_connection()
@@ -86,15 +88,14 @@ def mark_user_as_verified(email: str, phone: str):
             cursor.close()
             connection.close()
 
-def register_user(email: str, phone: str, name: str, surname: str, verification_code: str, password: str):
+def register_user(email: str, phone: str, name: str, surname: str, verification_code: str, hashed_password: str):
     connection = create_db_connection()
-    password_hash = hash_password(password)
     if connection:
         try:
             cursor = connection.cursor()
             cursor.execute(
                 "INSERT INTO USERS (email, phone, name, surname, verification_code, password) VALUES (%s, %s, %s, %s, %s, %s)",
-                (email, phone, name, surname, verification_code, password_hash)
+                (email, phone, name, surname, verification_code, hashed_password)
             )
             connection.commit()
             logger.info(f"User {email} registered successfully.")
@@ -103,7 +104,6 @@ def register_user(email: str, phone: str, name: str, surname: str, verification_
         finally:
             cursor.close()
             connection.close()
-
 
 def mark_test_as_completed(email: str, score: float, phone: str):
     connection = create_db_connection()
@@ -140,43 +140,23 @@ def save_user_progress(email: str, last_question_completed: int, answers, phone:
             cursor.close()
             connection.close()
 
-def get_user_data(email: str, phone: str):
-    connection = create_db_connection()
-    if connection:
-        try:
-            cursor = connection.cursor()
-            cursor.execute(
-                "SELECT name, surname FROM USERS WHERE email = %s AND phone = %s",
-                (email, phone)
-            )
-            result = cursor.fetchone()
-            if result:
-                data = {'name': result[0], 'surname': result[1]}
-                logger.debug(f"User data retrieved for {email}: {data}")
-                return data
-        except Exception as e:
-            logger.error(f"Error retrieving user data for {email}: {e}")
-        finally:
-            cursor.close()
-            connection.close()
-    return None
 
 def check_password(email: str, password: str) -> bool:
     connection = create_db_connection()
     if connection:
         try:
             cursor = connection.cursor()
-            cursor.execute(
-                "SELECT password FROM USERS WHERE email = %s",
-                (email,)
-            )
+            cursor.execute("SELECT password FROM USERS WHERE email = %s", (email,))
             result = cursor.fetchone()
             if result:
-                stored_hash = result[0]
-                return hash_password(password) == stored_hash
+                stored_hash = bytes(result[0]).decode('utf-8') if isinstance(result[0], bytearray) else result[0]
+                provided_hash = hash_password(password)
+                print(f"Stored hash: {stored_hash}, Provided hash: {provided_hash}")
+                return provided_hash == stored_hash
             return False
         except Exception as e:
             logger.error(f"Error checking password for {email}: {e}")
+            return False
         finally:
             cursor.close()
             connection.close()

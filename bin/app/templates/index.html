@@ -31,6 +31,7 @@
     </div>
     <div class="container">
         <form id="interviewForm" action="/submit" method="POST">
+            <input type="hidden" name="auth_token" value="{{ auth_token }}">
             <div class="question" id="question1">
                 <p>1. Describe your working style:</p>
 
