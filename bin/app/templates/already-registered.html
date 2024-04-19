@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -17,6 +17,82 @@
             </div>
             <button onclick="goBack()" class="button">Go Back Home</button>
         </div>
+    </div>
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="/static/background_c.webp?v=3"/>
+    <title>People Connect</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f3f3f3;
+            margin: 0;
+            padding: 0;
+            background-image: url(/static/background_e.webp);
+            display: flex;
+            justify-content: center;
+            background-repeat: no-repeat;
+            align-items: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            height: 100vh;
+        }
+
+        .container {
+            background: linear-gradient(145deg, #fffff0 0%, #ecfcfd 125%);
+            padding: 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        .login-form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 300px;
+        }
+        button {
+            padding: 12px 12px;
+            width: auto;
+            font-size: 20px;
+            border-radius: 5px;
+            border: none;
+            background-color: #dffdff;
+            color: rgb(0, 0, 0);
+            cursor: pointer;
+            display: inline-block;
+        }
+        button:hover {
+            background-color: #b1dbdb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Warning!</h1>
+        <p>You've successfully completed the test! We'll be in touch via email, SMS, or a phone call.</p>
+        <form id="v1" action="/" method="GET">
+            <button onclick="goBack()" class="button" type="submit">Go Back</button>
+        </form>
     </div>
     <script>
         function goBack() {
