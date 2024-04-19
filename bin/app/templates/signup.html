@@ -48,11 +48,13 @@
             const emailInput = document.getElementById('email');
             const phoneInput = document.getElementById('phone');
             const nameInput = document.getElementById('name');
+            const passwordInput = document.getElementById('password');
             const surnameInput = document.getElementById('surname');
             const phoneError = document.querySelector('.error#phone-error');
             const emailError = document.querySelector('.error#email-error');
             const nameError = document.querySelector('.error#name-error');
             const surnameError = document.querySelector('.error#surname-error');
+            const passwordError = document.querySelector('.error#password-error');
             function toggleNameSurnameFields(display) {
                 nameInput.style.display = display ? '' : 'none';
                 surnameInput.style.display = display ? '' : 'none';
@@ -61,6 +63,11 @@
             }
             function validateInputs() {
                 let isValid = true;
+                if (!passwordInput.value.trim()) {
+                    passwordError.textContent = 'Password is required.';
+                    passwordError.style.display = 'block';
+                    isValid = false;
+                }
                 if (!phoneInput.value.trim()) {
                     phoneError.textContent = 'Phone number is required.';
                     phoneError.style.display = 'block';
