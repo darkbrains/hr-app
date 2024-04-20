@@ -175,11 +175,9 @@ async def show_verify(request: Request, token: str, lang: str = Form(...)):
 @app.post("/verify")
 async def verify(request: Request, token: str = Form(...), lang: str = Form(...),
                  email: str = Form(...), phone: str = Form(...),
-                 code1: str = Form(...), code2: str = Form(...), code3: str = Form(...),
-                 code4: str = Form(...), code5: str = Form(...), code6: str = Form(...)):
+                 code: str = Form(...)):
     try:
         logger.info('Handling request for "/verify".')
-        full_code = ''.join([code1, code2, code3, code4, code5, code6])
         stored_code, timestamp = get_verification_code(email)
 
         if timestamp is None:
@@ -188,7 +186,7 @@ async def verify(request: Request, token: str = Form(...), lang: str = Form(...)
             return templates.TemplateResponse("error.html", {"request": request, "error": message, "lang": lang})
 
         current_time = int(time.time())
-        if stored_code == full_code and current_time - timestamp <= 300:
+        if stored_code == code and current_time - timestamp <= 300:
             mark_user_as_verified(email, phone)
             token_data = get_user_data_from_token(token)
             if not token_data:

@@ -27,9 +27,9 @@
     </select>
     <div id="user-info">
         {% if user_data %}
-        <p id="user-greeting">Welcome, {{ user_data.name }} {{ user_data.surname }}! Have a nice day! 😊</p>
+            <p id="user-greeting"></p>
         {% else %}
-        <p id="user-greeting">Welcome! Please login.</p>
+            <p id="user-greeting">Welcome! Please login.</p>
         {% endif %}
     </div>
     </div>
@@ -52,5 +52,9 @@
     <script src="/static/questions_1.js?v=3"></script>
     <script src="/static/questions_2.js?v=3"></script>
     <script src="/static/questions_3.js?v=3"></script>
+    <script type="text/javascript">
+        var userName = "{{ user_data.name }}";
+        var userSurname = "{{ user_data.surname }}";
+  </script>
 </body>
 </html>
