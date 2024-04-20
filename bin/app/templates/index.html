@@ -240,7 +240,10 @@
                 ],
                 errors: {
                     answerRequired: 'An answer is required.'
-                }
+                },
+                buttonNext: 'Next',
+                buttonPrev: 'Previous',
+                buttonSubmit: 'Finish'
             },
 
             ru: {
@@ -427,7 +430,10 @@
                 ],
                 errors: {
                     answerRequired: 'Требуется ответ.'
-                }
+                },
+                buttonNext: 'Далее',
+                buttonPrev: 'Назад',
+                buttonSubmit: 'Заканчивать'
             },
 
 
@@ -615,7 +621,10 @@
                 ],
                 errors: {
                     answerRequired: 'Պատասխան է պահանջվում։'
-                }
+                },
+                buttonNext: 'Հաջորդը',
+                buttonPrev: 'Նախորդը',
+                buttonSubmit: 'Ավարտել'
             },
         };
 
@@ -644,6 +653,10 @@
 
                 questionsContainer.appendChild(questionDiv);
             });
+
+            $('#nextButton').text(data.buttonNext);
+            $('#prevButton').text(data.buttonPrev);
+            $('#submit-btn').text(data.buttonSubmit);
         }
         languageSelector.value = formLangInput.value;
             updateLanguage(formLangInput.value);
@@ -669,7 +682,7 @@
                     const questionText = $('<p>').text(`${index + 1}. ${q.text}`);
                         const errorDiv = $('<div>', {
                             class: 'error',
-                            text: errorMessage, // Set the error message text dynamically based on language
+                            text: errorMessage,
                             style: 'display: none; color: red;'
                         });
 
@@ -702,7 +715,7 @@
             function updateNavigationButtons(number) {
                 $('#prevButton').toggle(number > 1);
                 $('#nextButton').toggle(number < totalQuestions);
-                $('#submit-btn').toggle(number === 20);
+                $('#submit-btn').toggle(number === totalQuestions);
             }
 
 
@@ -730,10 +743,18 @@
                     errorDiv.hide();
                     return true;
                 } else {
+                    console.error(`Error: Question ${currentQuestionIndex} requires an answer!`);
                     errorDiv.text(errorMessage).show();
                     return false;
                 }
             }
+
+            function submitForm() {
+                if (validateQuestion()) {
+                    $('#interviewForm').submit();
+                }
+            }
+
 
             $('#nextButton').click(function() {
                 if (validateQuestion()) {
@@ -750,6 +771,10 @@
                 }
             });
 
+            $('#submit-btn').click(function(event) {
+                event.preventDefault();
+                submitForm();
+            });
 
             languageSelector.change(function() {
                 loadQuestions(this.value);
@@ -782,6 +807,5 @@
             updateLanguage(languageSelector.value);
         });
     </script>
-
 </body>
 </html>
