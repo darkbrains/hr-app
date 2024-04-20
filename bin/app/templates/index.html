@@ -26,11 +26,17 @@
         <option value="hy">Հայերեն</option>
     </select>
     <div id="user-info">
+        {% if user_data %}
+        <p id="user-greeting">Welcome, {{ user_data.name }} {{ user_data.surname }}! Have a nice day! 😊</p>
+        {% else %}
+        <p id="user-greeting">Welcome! Please login.</p>
+        {% endif %}
+    </div>
     </div>
     <div class="container">
         <form id="interviewForm" action="/submit" method="POST">
-            <input type="hidden" name="auth_token" value="your_auth_token">
-            <input type="hidden" name="lang" value="{{ lang }}">
+            <input type="hidden" name="auth_token" value="{{ auth_token }}">
+            <input type="hidden" name="lang" id="form-lang"  value="{{ lang }}">
             <div id="questions-container">
                 <div class="error" style="display:none;"></div>
             </div>
@@ -47,10 +53,10 @@
     <script>
         const languageSelector = document.getElementById('language-selector');
         const questionsContainer = document.getElementById('questions-container');
+        const formLangInput = document.getElementById('form-lang');
 
         const translations = {
             en: {
-                greeting: "Welcome, {name} {surname}! Have a nice day! 😊",
                 questions: [
                 {
                     text: "Describe your working style:",
@@ -273,6 +279,7 @@
         };
 
         function updateLanguage(lang) {
+            formLangInput.value = lang;
             const data = translations[lang];
             questionsContainer.innerHTML = '';
 
@@ -297,12 +304,13 @@
                 questionsContainer.appendChild(questionDiv);
             });
         }
+        languageSelector.value = formLangInput.value;
+            updateLanguage(formLangInput.value);
 
         languageSelector.addEventListener('change', function() {
             updateLanguage(this.value);
         });
 
-        updateLanguage(languageSelector.value);
     </script>
  <script>
     $(document).ready(function() {
@@ -403,6 +411,29 @@
         loadQuestions(languageSelector.val());
         });
     </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const languageSelector = document.getElementById('language-selector');
+            const userGreeting = document.getElementById('user-greeting');
+
+            const translations = {
+                'en': 'Welcome, {{ user_data.name }} {{ user_data.surname }}! Have a nice day! 😊',
+                'ru': 'Добро пожаловать, {{ user_data.name }} {{ user_data.surname }}! Желаем хорошего дня! 😊',
+                'hy': 'Բարի գալուստ, {{ user_data.name }} {{ user_data.surname }}! Հաճելի օր ունեցեք! 😊'
+            };
+
+            function updateLanguage(lang) {
+                userGreeting.textContent = translations[lang];
+            }
+
+            languageSelector.addEventListener('change', function() {
+                updateLanguage(this.value);
+            });
+
+            updateLanguage(languageSelector.value);
+        });
+        </script>
 
 </body>
 </html>
