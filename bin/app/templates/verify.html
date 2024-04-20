@@ -54,19 +54,57 @@
         button:hover {
             background-color: #498ead;
         }
+        select:hover {
+            background-color: #fffff0;
+        }
+        select#language-selector {
+            background-repeat: no-repeat;
+            background-size: 20px;
+            padding-right: 0px;
+        }
+        @-moz-document url-prefix() {
+            select#language-selector {
+                background-image: none;
+            }
+        }
+        @media (max-width: 768px) {
+            select#language-selector {
+                width: 90%;
+            }
+        }
+        select {
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 20px;
+            background-color: #fffff9;
+            color: #5ca2c2;
+            cursor: pointer;
+            font-size: 1em;
+            text-transform: uppercase;
+            outline: none;
+        }
     </style>
 </head>
 <body>
+    <select id="language-selector">
+        <option value="en">English</option>
+        <option value="ru">Русский</option>
+        <option value="hy">Հայերեն</option>
+    </select>
     <div class="login-container">
         <div class="login-form">
-            <h1>Verify Your Account</h1>
-            <p>We have sent a verification code to your email. Please check your inbox.</p>
+            <h1 id="title">Verify Your Account</h1>
+            <p id="description">We have sent a verification code to your email. Please check your inbox.</p>
             <form id="v1" action="/verify" method="POST">
                 <div class="code-input-group">
                     <input type="hidden" id="email" name="email" value="{{ email }}">
                     <input type="hidden" id="password" name="password" value="{{ password }}">
                     <input type="hidden" id="phone" name="phone" value="{{ phone }}">
                     <input type="hidden" name="token" value="{{ auth_token }}">
+                    <input type="hidden" name="lang" value="{{ lang }}">
                     <input class="code-input" type="text" name="code1" maxlength="1" pattern="[0-9]{1}" required>
                     <input class="code-input" type="text" name="code2" maxlength="1" pattern="[0-9]{1}" required>
                     <input class="code-input" type="text" name="code3" maxlength="1" pattern="[0-9]{1}" required>
@@ -74,17 +112,54 @@
                     <input class="code-input" type="text" name="code5" maxlength="1" pattern="[0-9]{1}" required>
                     <input class="code-input" type="text" name="code6" maxlength="1" pattern="[0-9]{1}" required>
                 </div>
-                <input type="hidden" name="email" value="{{ email }}">
-                <input type="hidden" name="code" id="fullCode">
-                <button type="submit">Verify</button>
+                <button type="submit" id="signupBtn">Verify</button>
             </form>
-            <p id="expiredMessage" style="display: none; color: red;">
-                Verification code expired. Click
-                <button id="regenerateButton" onclick="regenerateCode();event.preventDefault();" style="display: none;">here</button>
-                to regenerate.
-            </p>
         </div>
     </div>
+    <script>
+        const translations = {
+            'en': {
+                'title': 'Verify Your Account',
+                'description': 'We have sent a verification code to your email. Please check your inbox.',
+                'signupBtn': 'Verify'
+            },
+            'ru': {
+                'title': 'Проверьте ваш аккаунт',
+                'description': 'Мы отправили код подтверждения на вашу электронную почту. Пожалуйста, проверьте ваш почтовый ящик.',
+                'signupBtn': 'Проверять'
+            },
+            'hy': {
+                'title': 'Ստուգեք Ձեր հաշիվը',
+                'description': 'Մենք ուղարկել ենք վավերացման կոդ Ձեր էլեկտրոնային փոստին։ Խնդրում ենք, ստուգեք Ձեր նամականիշը։',
+                'signupBtn': 'Հաստատել'
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const languageSelector = document.getElementById('language-selector');
+            const title = document.getElementById('title');
+            const description = document.getElementById('description');
+            const submitButton = document.getElementById('signupBtn');
+
+            function updateLanguage(lang) {
+                const langTranslations = translations[lang];
+                title.textContent = langTranslations.title;
+                description.textContent = langTranslations.description;
+                submitButton.textContent = langTranslations.signupBtn;
+            }
+
+            const currentLang = localStorage.getItem('selectedLanguage') || 'hy';
+            languageSelector.value = currentLang;
+            updateLanguage(currentLang);
+
+            languageSelector.addEventListener('change', function() {
+                const newLang = this.value;
+                localStorage.setItem('selectedLanguage', newLang);
+                updateLanguage(newLang);
+            });
+        });
+    </script>
+
     <script>
     document.querySelectorAll('.code-input').forEach((input, index, array) => {
         input.addEventListener('keyup', (e) => {

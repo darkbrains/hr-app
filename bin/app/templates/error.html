@@ -8,18 +8,58 @@
     <link rel="stylesheet" href="/static/registration.css?v=3">
 </head>
 <body>
+    <select id="language-selector">
+        <option value="en" {% if lang == 'en' %} selected {% endif %}>English</option>
+        <option value="ru" {% if lang == 'ru' %} selected {% endif %}>Русский</option>
+        <option value="hy" {% if lang == 'hy' %} selected {% endif %}>Հայերեն</option>
+    </select>
     <div class="login-container">
         <div class="login-form">
-            <input type="hidden" name="email" value="{{ email }}">
-            <input type="hidden" name="phone" value="{{ phone }}">
-            <input type="hidden" name="auth_token" value="{{ auth_token }}">
-            <h1>Oops! Something went wrong.</h1>
+            <h1 id="error-title">Oops! Something went wrong.</h1>
             <div class="error-img">
                 <img src="/static/oops_b.webp?v=3">
             </div>
-            <p>{{ error }}</p>
-            <a href="/">Go Back Home</a>
+            <p id="error-message">{{ error }}</p>
+            <a href="/" id="home-link">Go back</a>
         </div>
     </div>
+    <script>
+        const errorTranslations = {
+            'en': {
+                'title': 'Oops! Something went wrong.',
+                'message': '{{ error }}',
+                'homeLink': 'Go back'
+            },
+            'ru': {
+                'title': 'Упс! Что-то пошло не так.',
+                'message': '{{ error }}',
+                'homeLink': 'Вернуться на главную'
+            },
+            'hy': {
+                'title': 'Վայ! Ինչ-որ բան սխալ է արվել։',
+                'message': '{{ error }}',
+                'homeLink': 'Վերադառնալ'
+            }
+        };
+
+        const languageSelector = document.getElementById('language-selector');
+        const errorTitle = document.getElementById('error-title');
+        const errorMessage = document.getElementById('error-message');
+        const homeLink = document.getElementById('home-link');
+
+        languageSelector.addEventListener('change', function() {
+            const lang = this.value;
+            errorTitle.textContent = errorTranslations[lang].title;
+            errorMessage.textContent = errorTranslations[lang].message;
+            homeLink.textContent = errorTranslations[lang].homeLink;
+        });
+
+        const currentLang = '{{ lang }}';
+        if (errorTranslations[currentLang]) {
+            errorTitle.textContent = errorTranslations[currentLang].title;
+            errorMessage.textContent = errorTranslations[currentLang].message;
+            homeLink.textContent = errorTranslations[currentLang].homeLink;
+        }
+    </script>
 </body>
 </html>

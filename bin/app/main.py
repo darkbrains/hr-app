@@ -19,6 +19,7 @@ from utils.email_resend import setup_scheduler
 from utils.envs import TOTAL_QUESTIONS, PORT
 from utils.password import hash_password
 from utils.tokens import  generate_token, get_user_data_from_token, tokens
+from utils.error_messages import get_message
 
 app = FastAPI()
 
@@ -65,7 +66,7 @@ async def signup(request: Request):
 
 
 @app.post("/signup")
-async def handle_signup(request: Request, email: str = Form(...), phone: str = Form(...), name: str = Form(None), surname: str = Form(None), password: str = Form(...)):
+async def handle_signup(request: Request, email: str = Form(...), phone: str = Form(...), name: str = Form(None), surname: str = Form(None), password: str = Form(...), lang: str = Form(...)):
     try:
         email = format_email(email)
         name = format_name(name)
@@ -79,17 +80,18 @@ async def handle_signup(request: Request, email: str = Form(...), phone: str = F
                     test_completed = user_data.get('test_completed', False)
                     if not test_completed:
                         token = generate_token(email, phone)
-                        return RedirectResponse(url=f"/questions?token={token}", status_code=303)
+                        return RedirectResponse(url=f"/questions?token={token}&lang={lang}", status_code=303)
                     else:
-                        return templates.TemplateResponse("already-registered.html", {"request": request, "email": email})
+                        return templates.TemplateResponse("already-registered.html", {"request": request, "email": email, "lang": lang})
                 else:
                     token = generate_token(email, phone)
                     new_code = generate_verification_code()
                     update_verification_code(email, new_code)
                     send_email(email, new_code)
-                    return templates.TemplateResponse("verify.html", {"request": request, "email": email, "phone": phone, "auth_token": token})
+                    return templates.TemplateResponse("verify.html", {"request": request, "email": email, "phone": phone, "auth_token": token, "lang": lang})
             else:
-                return templates.TemplateResponse("error.html", {"request": request, "error": "Incorrect password. Please try again.", "status_code": 401})
+                message = get_message('incorrect_password', lang)
+                return templates.TemplateResponse("error.html", {"request": request, "error": message, "status_code": 401, "lang": lang})
         else:
             hashed_password = hash_password(password)
             verification_code = generate_verification_code()
@@ -97,14 +99,15 @@ async def handle_signup(request: Request, email: str = Form(...), phone: str = F
             store_verification_code(email, verification_code)
             send_email(email, verification_code)
             token = generate_token(email, phone)
-            return templates.TemplateResponse("verify.html", {"request": request, "email": email, "phone": phone, "auth_token": token})
+            return templates.TemplateResponse("verify.html", {"request": request, "email": email, "phone": phone, "auth_token": token, "lang": lang})
     except Exception as e:
         logger.error(f'Error during signup for {email}: {e}')
-        return templates.TemplateResponse("error.html", {"request": request, "error": "Failed to process signup. Please try again later.", "status_code": 500})
+        message = get_message('signup_error', lang)
+        return templates.TemplateResponse("error.html", {"request": request, "error": message, "lang": lang, "status_code": 500})
 
 
 @app.get("/questions")
-async def show_questions(request: Request, token: str):
+async def show_questions(request: Request, token: str, lang: str = Form(...)):
     try:
         token_data = get_user_data_from_token(token)
         if not token_data:
@@ -116,14 +119,15 @@ async def show_questions(request: Request, token: str):
         if not user_data:
             raise HTTPException(status_code=404, detail="User not found")
 
-        return templates.TemplateResponse("index.html", {"request": request, "user_data": user_data, "auth_token": token})
+        return templates.TemplateResponse("index.html", {"request": request, "user_data": user_data, "auth_token": token , "lang": lang})
     except Exception as e:
         logger.error(f'Error displaying questions: {e}')
-        return templates.TemplateResponse("error.html", {"request": request, "error": "Failed to load questions. Please try again later.", "status_code": 500})
+        message = get_message('questions_error', lang)
+        return templates.TemplateResponse("error.html", {"request": request,  "error": message, "lang": lang, "status_code": 500})
 
 
 @app.post('/submit', response_class=HTMLResponse)
-async def submit_form(request: Request, auth_token: str = Form(...)):
+async def submit_form(request: Request, auth_token: str = Form(...), lang: str = Form(...)):
     try:
         token_data = get_user_data_from_token(auth_token)
         if not token_data:
@@ -143,14 +147,15 @@ async def submit_form(request: Request, auth_token: str = Form(...)):
         score = calculate_suitability_score([int(v) for v in responses.values() if v is not None])
         mark_test_as_completed(email, score, phone)
         save_user_progress(email, TOTAL_QUESTIONS, responses, phone)
-        return templates.TemplateResponse("results.html", {"request": request})
+        return templates.TemplateResponse("results.html", {"request": request, "lang": lang})
     except Exception as e:
         logger.error(f'Error during form submission: {e}')
-        return templates.TemplateResponse("error.html", {"request": request, "error": "Failed to submit form. Please try again later.", "status_code": 500})
+        message = get_message('submit_error', lang)
+        return templates.TemplateResponse("error.html", {"request": request, "error": message, "lang": lang,  "status_code": 500})
 
 
 @app.get("/verify")
-async def show_verify(request: Request, token: str):
+async def show_verify(request: Request, token: str, lang: str = Form(...)):
     try:
         token_data = get_user_data_from_token(token)
         if not token_data:
@@ -161,14 +166,15 @@ async def show_verify(request: Request, token: str):
         if not user_data:
             raise HTTPException(status_code=404, detail="User not found")
 
-        return templates.TemplateResponse("verify.html", {"request": request, "email": email, "phone": phone, "auth_token": token})
+        return templates.TemplateResponse("verify.html", {"request": request, "email": email, "phone": phone, "auth_token": token, "lang": lang})
     except Exception as e:
         logger.error(f'Error displaying verify page: {e}')
-        return templates.TemplateResponse("error.html", {"request": request, "error": "Failed to load verification page. Please try again later.", "status_code": 500})
+        message = get_message('verify_error', lang)
+        return templates.TemplateResponse("error.html", {"request": request,  "error": message, "lang": lang, "status_code": 500})
 
 
 @app.post("/verify")
-async def verify(request: Request, token: str = Form(...),
+async def verify(request: Request, token: str = Form(...), lang: str = Form(...),
                  email: str = Form(...), phone: str = Form(...),
                  code1: str = Form(...), code2: str = Form(...), code3: str = Form(...),
                  code4: str = Form(...), code5: str = Form(...), code6: str = Form(...)):
@@ -179,7 +185,8 @@ async def verify(request: Request, token: str = Form(...),
 
         if timestamp is None:
             logger.error(f"No verification code or timestamp found for {email}")
-            return templates.TemplateResponse("error.html", {"request": request, "error": "No verification code found. Please try to Sign Up again."})
+            message = get_message('verify_no_code', lang)
+            return templates.TemplateResponse("error.html", {"request": request, "error": message, "lang": lang})
 
         current_time = int(time.time())
         if stored_code == full_code and current_time - timestamp <= 300:
@@ -192,18 +199,21 @@ async def verify(request: Request, token: str = Form(...),
             user_data = get_user_data(email, phone)
             if not user_data:
                 raise HTTPException(status_code=404, detail="User not found")
-            return templates.TemplateResponse("verify-success.html", {"request": request, "email": email, "auth_token": token})
+            return templates.TemplateResponse("verify-success.html", {"request": request, "email": email, "auth_token": token, "lang": lang})
         elif current_time - timestamp > 300:
             new_code = generate_verification_code()
             update_verification_code(email, new_code)
-            return templates.TemplateResponse("error.html", {"request": request, "error": "Verification code expired. Please try to Sign Up again."})
+            message = get_message('verify_expired', lang)
+            return templates.TemplateResponse("error.html", {"request": request, "error": message, "lang": lang})
         else:
-            return templates.TemplateResponse("error.html", {"request": request, "error": "Incorrect verification code. Please try again."})
+            message = get_message('verify_incorrect', lang)
+            return templates.TemplateResponse("error.html", {"request": request, "error": message, "lang": lang})
     except HTTPException as exc:
         return await http_exception_handler(request, exc)
     except Exception as e:
         logger.error(f"Verification process failed for {email}: {e}")
-        return templates.TemplateResponse("error.html", {"request": request, "error": "An internal error occurred."})
+        message = get_message('verify_error', lang)
+        return templates.TemplateResponse("error.html", {"request": request, "error": message, "lang": lang, "status_code": 500})
 
 
 @app.post("/api/v1/check_code_expiration")

@@ -6,21 +6,70 @@
     <link rel="shortcut icon" type="image/x-icon" href="/static/background_c.webp?v=3"/>
     <title>People Connect</title>
     <link rel="stylesheet" href="/static/registration.css?v=3">
-    <meta http-equiv="refresh" content="4; url={{ url }}/questions?token={{ auth_token }}">
+    <meta http-equiv="refresh" content="4; url={{ url }}/questions?token={{ auth_token }}&lang={lang}">
 </head>
 <body>
+    <select id="language-selector">
+        <option value="en">English</option>
+        <option value="ru">Русский</option>
+        <option value="hy">Հայերեն</option>
+    </select>
     <div class="login-container">
+        <input type="hidden" name="lang" value="{{ lang }}">
         <div class="login-form">
             <input type="hidden" name="email" value="{{ email }}">
             <input type="hidden" name="phone" value="{{ phone }}">
             <input type="hidden" name="auth_token" value="{{ auth_token }}">
-            <h1>Registration Successful</h1>
+            <h1  id="title">Registration Successful</h1>
             <div class="success-img">
                 <img src="/static/success.png?v=3">
             </div>
-            <p>Your account has been verified!</p>
-            <p>You'll be redirected to the Questions page shortly.</p>
+            <p id="verified">Your account has been verified!</p>
+            <p id="redirect"> You'll be redirected to the Questions page shortly.</p>
         </div>
     </div>
+    <script>
+        const translations = {
+            'en': {
+                'title': 'Registration Successful',
+                'verified': 'Your account has been verified!',
+                'redirect': 'You\'ll be redirected to the Questions page shortly.'
+            },
+            'ru': {
+                'title': 'Регистрация Успешна',
+                'verified': 'Ваш аккаунт был проверен!',
+                'redirect': 'Вы будете перенаправлены на страницу с вопросами в ближайшее время.'
+            },
+            'hy': {
+                'title': 'Գրանցումը Հաջողվեց',
+                'verified': 'Ձեր հաշիվը հաստատված է!',
+                'redirect': 'Շուտով կուղղորդվեք հարցերի էջ:'
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const languageSelector = document.getElementById('language-selector');
+            const title = document.getElementById('title');
+            const verified = document.getElementById('verified');
+            const redirect = document.getElementById('redirect');
+
+            function updateLanguage(lang) {
+                const langTranslations = translations[lang];
+                title.textContent = langTranslations.title;
+                verified.textContent = langTranslations.verified;
+                redirect.textContent = langTranslations.redirect;
+            }
+
+            const currentLang = localStorage.getItem('selectedLanguage') || 'hy';
+            languageSelector.value = currentLang;
+            updateLanguage(currentLang);
+
+            languageSelector.addEventListener('change', function() {
+                const newLang = this.value;
+                localStorage.setItem('selectedLanguage', newLang);
+                updateLanguage(newLang);
+            });
+        });
+    </script>
 </body>
 </html>
