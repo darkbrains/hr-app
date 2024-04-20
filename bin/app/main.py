@@ -119,7 +119,7 @@ async def show_questions(request: Request, token: str, lang: str):
         if not user_data:
             raise HTTPException(status_code=404, detail="User not found")
 
-        return templates.TemplateResponse("index.html", {"request": request, "user_data": user_data, "auth_token": token , "lang": lang})
+        return templates.TemplateResponse("questions.html", {"request": request, "user_data": user_data, "auth_token": token , "lang": lang})
     except Exception as e:
         logger.error(f'Error displaying questions: {e}')
         message = get_message('questions_error', lang)
