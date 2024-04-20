@@ -154,10 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const isFormValid = validateForm();
         if (isFormValid) {
-            const allFieldsFilled = Object.values(inputs).every(input => input.value.trim() !== '');
-            if (allFieldsFilled) {
-                this.submit();
-            }
+            this.submit();
         }
     });
 
