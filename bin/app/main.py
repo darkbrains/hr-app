@@ -82,7 +82,7 @@ async def handle_signup(request: Request, email: str = Form(...), phone: str = F
                         token = generate_token(email, phone)
                         return RedirectResponse(url=f"/questions?token={token}&lang={lang}", status_code=303)
                     else:
-                        return templates.TemplateResponse("already-registered.html", {"request": request, "email": email, "lang": lang})
+                        return templates.TemplateResponse("already_registered.html", {"request": request, "email": email, "lang": lang})
                 else:
                     token = generate_token(email, phone)
                     new_code = generate_verification_code()
@@ -199,7 +199,7 @@ async def verify(request: Request, token: str = Form(...), lang: str = Form(...)
             user_data = get_user_data(email, phone)
             if not user_data:
                 raise HTTPException(status_code=404, detail="User not found")
-            return templates.TemplateResponse("verify-success.html", {"request": request, "email": email, "auth_token": token, "lang": lang})
+            return templates.TemplateResponse("verify_success.html", {"request": request, "email": email, "auth_token": token, "lang": lang})
         elif current_time - timestamp > 300:
             new_code = generate_verification_code()
             update_verification_code(email, new_code)

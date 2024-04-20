@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="/static/background_c.webp?v=3"/>
+    <title>People Connect</title>
+    <link rel="stylesheet" href="/static/registration.css?v=3">
+    <meta http-equiv="refresh" content="4; url={{ url }}/questions?token={{ auth_token }}&lang={{ lang }}">
+</head>
+<body>
+    <select id="language-selector">
+        <option value="en">English</option>
+        <option value="ru">Русский</option>
+        <option value="hy">Հայերեն</option>
+    </select>
+    <div class="login-container">
+        <input type="hidden" name="lang" value="{{ lang }}">
+        <div class="login-form">
+            <input type="hidden" name="email" value="{{ email }}">
+            <input type="hidden" name="phone" value="{{ phone }}">
+            <input type="hidden" name="auth_token" value="{{ auth_token }}">
+            <h1  id="title">Registration Successful</h1>
+            <div class="success-img">
+                <img src="/static/success.png?v=3">
+            </div>
+            <p id="verified">Your account has been verified!</p>
+            <p id="redirect">You'll be redirected to the Questions page shortly.</p>
+        </div>
+    </div>
+    <script src="/static/verify_sucess.js?v=3"></script>
+</body>
+</html>

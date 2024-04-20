@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>People Connect</title>
+    <link rel="stylesheet" href="/static/styles.css?=v3">
+    <link rel="shortcut icon" type="image/x-icon" href="/static/background_c.webp?v=3">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        #user-info {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+            background: linear-gradient(145deg, #fffff0 0%, #ecfcfd 125%);
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <select id="language-selector">
+        <option value="en">English</option>
+        <option value="ru">Русский</option>
+        <option value="hy">Հայերեն</option>
+    </select>
+    <div id="user-info">
+        {% if user_data %}
+        <p id="user-greeting">Welcome, {{ user_data.name }} {{ user_data.surname }}! Have a nice day! 😊</p>
+        {% else %}
+        <p id="user-greeting">Welcome! Please login.</p>
+        {% endif %}
+    </div>
+    </div>
+    <div class="container">
+        <form id="interviewForm" action="/submit" method="POST">
+            <input type="hidden" name="auth_token" value="{{ auth_token }}">
+            <input type="hidden" name="lang" id="form-lang"  value="{{ lang }}">
+            <div id="questions-container">
+                <div class="error" style="display:none;"></div>
+            </div>
+
+            <div id="navigation-buttons">
+                <button type="button" id="prevButton">Previous</button>
+                <button type="button" id="nextButton">Next</button>
+                <button type="submit" id="submit-btn" style="display:none;">Submit</button>
+            </div>
+            <div id="progress"></div>
+        </form>
+    </div>
+    <script src="/static/questions_1.js?v=3"></script>
+    <script src="/static/questions_2.js?v=3"></script>
+    <script src="/static/questions_3.js?v=3"></script>
+</body>
+</html>
