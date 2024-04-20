@@ -24,7 +24,7 @@
                 <p>Sign up to People Connect.</p>
             </div>
             <form action="/signup" method="POST">
-                <input type="hidden" name="lang" value="hy">
+                <input type="hidden" name="lang" value="{{ lang }}">
                 <div class="input-group">
                     <input type="tel" id="phone" name="phone" placeholder="Example +1234567890">
                     <div class="error" id="phone-error" style="display:none;"></div>

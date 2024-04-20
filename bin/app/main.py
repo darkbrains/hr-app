@@ -107,7 +107,7 @@ async def handle_signup(request: Request, email: str = Form(...), phone: str = F
 
 
 @app.get("/questions")
-async def show_questions(request: Request, token: str, lang: str = Form(...)):
+async def show_questions(request: Request, token: str, lang: str):
     try:
         token_data = get_user_data_from_token(token)
         if not token_data:

@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>People Connect</title>
     <link rel="stylesheet" href="/static/styles.css?=v3">
-    <link rel="shortcut icon" type="image/x-icon" href="/static/background_c.webp?v=3" />
+    <link rel="shortcut icon" type="image/x-icon" href="/static/background_c.webp?v=3">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         #user-info {
@@ -14,425 +13,394 @@
             right: 10px;
             border: 1px solid #ccc;
             padding: 5px 10px;
-            border-radius: 5px;
             background: linear-gradient(145deg, #fffff0 0%, #ecfcfd 125%);
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
-
 <body>
+    <select id="language-selector">
+        <option value="en">English</option>
+        <option value="ru">Русский</option>
+        <option value="hy">Հայերեն</option>
+    </select>
     <div id="user-info">
-        {% if user_data %}
-        <p>Welcome, {{ user_data.name }} {{ user_data.surname }}! Have a nice day! 😊</p>
-    </p>
-        {% endif %}
     </div>
     <div class="container">
         <form id="interviewForm" action="/submit" method="POST">
-            <input type="hidden" name="auth_token" value="{{ auth_token }}">
-            <input type="hidden" name="lang" value="hy">
-            <div class="question" id="question1">
-                <p>1. Describe your working style:</p>
-
-                <label><input type="radio" value="4" name="q1" required>Independently</label>
-                <label><input type="radio" value="3" name="q1" required>As part of a team</label>
-                <label><input type="radio" value="2" name="q1" required>In a leadership role</label>
-                <label><input type="radio" value="1" name="q1" required>Flexible/Adaptable to any style</label>
-
-                <div class="submit-btn">
-                    <button type="button" onclick="showNext(1)">Next</button>
-                </div>
-                <div class="error" id="error-q1" style="display:none;"></div>
+            <input type="hidden" name="auth_token" value="your_auth_token">
+            <input type="hidden" name="lang" value="{{ lang }}">
+            <div id="questions-container">
+                <div class="error" style="display:none;"></div>
             </div>
 
-
-            <div class="question" id="question2" style="display:none;">
-                <p>2. How do you handle stress and pressure?:</p>
-
-                <label><input type="radio" value="2" name="q2" required>Through physical activity or meditation</label>
-                <label><input type="radio" value="3" name="q2" required>Through physical activity or meditation</label>
-                <label><input type="radio" value="1" name="q2" required>Ignoring it until the stressful period is
-                    over</label>
-                <label><input type="radio" value="4" name="q2" required>By planning and prioritizing tasks</label>
-
-                <div class="submit-btn">
-                    <button type="button" onclick="showPrevious(2)">Previous</button>
-                    <button type="button" onclick="showNext(2)">Next</button>
-                </div>
-                <div class="error" id="error-q2" style="display:none;"></div>
+            <div id="navigation-buttons">
+                <button type="button" id="prevButton">Previous</button>
+                <button type="button" id="nextButton">Next</button>
+                <button type="submit" id="submit-btn" style="display:none;">Submit</button>
             </div>
-
-            <div class="question" id="question3" style="display:none;">
-                <p>3. What motivates you at work?:</p>
-
-                <label><input type="radio" value="4" name="q3" required>Achieving goals</label>
-                <label><input type="radio" value="3" name="q3" required>Helping others</label>
-                <label><input type="radio" value="1" name="q3" required>Recognition and rewards</label>
-                <label><input type="radio" value="2" name="q3" required>Personal development</label>
-
-                <div class="submit-btn">
-                    <button type="button" onclick="showPrevious(3)">Previous</button>
-                    <button type="button" onclick="showNext(3)">Next</button>
-                </div>
-                <div class="error" id="error-q3" style="display:none;"></div>
-            </div>
-
-
-
-            <div class="question" id="question4" style="display:none;">
-                <p>4. Describe your approach to problem-solving:</p>
-
-                <label><input type="radio" value="3" name="q4" required>Creative and intuitive</label>
-                <label><input type="radio" value="4" name="q4" required>Analytical and methodical</label>
-                <label><input type="radio" value="1" name="q4" required>I ask for help when needed</label>
-                <label><input type="radio" value="2" name="q4" required>Practical and straightforward</label>
-
-                <div class="submit-btn">
-                    <button type="button" onclick="showPrevious(4)">Previous</button>
-                    <button type="button" onclick="showNext(4)">Next</button>
-                </div>
-                <div class="error" id="error-q4" style="display:none;"></div>
-            </div>
-
-
-            <div class="question" id="question5" style="display:none;">
-                <p>5. How do you prioritize your work?</p>
-
-                <label><input type="radio" value="1" name="q5" required>I struggle with prioritization</label>
-                <label><input type="radio" value="3" name="q5" required>By task importance </label>
-                <label><input type="radio" value="2" name="q5" required>Based on supervisor direction</label>
-                <label><input type="radio" value="4" name="q5" required>By deadline</label>
-
-                <div class="submit-btn">
-                    <button type="button" onclick="showPrevious(5)">Previous</button>
-                    <button type="button" onclick="showNext(5)">Next</button>
-                </div>
-                <div class="error" id="error-q5" style="display:none;"></div>
-            </div>
-
-            <div class="question" id="question6" style="display:none;">
-                <p>6. How do you handle criticism?</p>
-
-                <label><input type="radio" value="1" name="q6" required>I use it as motivation</label>
-                <label><input type="radio" value="4" name="q6" required>I take it constructively to improve</label>
-                <label><input type="radio" value="2" name="q6" required>I find it difficult to accept</label>
-                <label><input type="radio" value="3" name="q6" required>It depends on who it comes from</label>
-
-                <div class="submit-btn">
-                    <button type="button" onclick="showPrevious(6)">Previous</button>
-                    <button type="button" onclick="showNext(6)">Next</button>
-                </div>
-                <div class="error" id="error-q6" style="display:none;"></div>
-            </div>
-
-            <div class="question" id="question7" style="display:none;">
-                <p>7. What is your greatest strength?</p>
-
-                <label><input type="radio" value="4" name="q7" required>Communication skills</label>
-                <label><input type="radio" value="2" name="q7" required>Problem-solving skills</label>
-                <label><input type="radio" value="3" name="q7" required>Leadership abilities</label>
-                <label><input type="radio" value="1" name="q7" required>Ability to learn quickly</label>
-
-                <div class="submit-btn">
-                    <button type="button" onclick="showPrevious(7)">Previous</button>
-                    <button type="button" onclick="showNext(7)">Next</button>
-                </div>
-                <div class="error" id="error-q7" style="display:none;"></div>
-            </div>
-
-            <div class="question" id="question8" style="display:none;">
-                <p>8. What is your greatest weakness?</p>
-
-                <label><input type="radio" value="3" name="q8" required>Hesitation to delegate</label>
-                <label><input type="radio" value="2" name="q8" required>Taking on too much work</label>
-                <label><input type="radio" value="4" name="q8" required>Impatience</label>
-                <label><input type="radio" value="1" name="q8" required>Being too detail-oriented</label>
-
-                <div class="submit-btn">
-                    <button type="button" onclick="showPrevious(8)">Previous</button>
-                    <button type="button" onclick="showNext(8)">Next</button>
-                </div>
-                <div class="error" id="error-q8" style="display:none;"></div>
-            </div>
-
-
-            <div class="question" id="question9" style="display:none;">
-                <p>9. How do you manage conflicts in a team?</p>
-
-                <label><input type="radio" value="1" name="q9" required>By consulting with a supervisor</label>
-                <label><input type="radio" value="2" name="q9" required>By avoiding conflict situations</label>
-                <label><input type="radio" value="4" name="q9" required>By addressing issues directly</label>
-                <label><input type="radio" value="3" name="q9" required>By mediating between parties</label>
-
-                <div class="submit-btn">
-                    <button type="button" onclick="showPrevious(9)">Previous</button>
-                    <button type="button" onclick="showNext(9)">Next</button>
-                </div>
-                <div class="error" id="error-q9" style="display:none;"></div>
-            </div>
-
-            <div class="question" id="question10" style="display:none;">
-                <p>10. Describe a time when you failed in this role and the lesson you learned.</p>
-
-                <label><input type="radio" value="1" name="q10" required>I have never failed in my role.</label>
-                <label><input type="radio" value="2" name="q10" required>The failure was due to poor time management,
-                    and I've since improved my prioritization skills.</label>
-                <label><input type="radio" value="3" name="q10" required>The failure was due to miscommunication, and
-                    I've worked on improving my communication skills.</label>
-                <label><input type="radio" value="4" name="q10" required>The failure was due to a lack of skill, and I
-                    pursued additional training.</label>
-
-                <div class="submit-btn">
-                    <button type="button" onclick="showPrevious(10)">Previous</button>
-                    <button type="button" onclick="showNext(10)">Next</button>
-                </div>
-                <div class="error" id="error-q10" style="display:none;"></div>
-            </div>
-
-            <div class="question" id="question11" style="display:none;">
-                <p>11. Why do you want to work here?</p>
-
-                <label><input type="radio" value="1" name="q11" required>Other</label>
-                <label><input type="radio" value="4" name="q11" required>The company's culture</label>
-                <label><input type="radio" value="2" name="q11" required>The company's products/services</label>
-                <label><input type="radio" value="3" name="q11" required>Career growth opportunities</label>
-
-                <div class="submit-btn">
-                    <button type="button" onclick="showPrevious(11)">Previous</button>
-                    <button type="button" onclick="showNext(11)">Next</button>
-                </div>
-                <div class="error" id="error-q11" style="display:none;"></div>
-            </div>
-
-            <div class="question" id="question12" style="display:none;">
-                <p>12. What are your career goals?</p>
-
-                <label><input type="radio" value="4" name="q12" required>To move into a leadership position</label>
-                <label><input type="radio" value="3" name="q12" required>To specialize in my current field</label>
-                <label><input type="radio" value="1" name="q12" required>I'm not sure yet</label>
-                <label><input type="radio" value="2" name="q12" required>To transition to a different industry</label>
-
-                <div class="submit-btn">
-                    <button type="button" onclick="showPrevious(12)">Previous</button>
-                    <button type="button" onclick="showNext(12)">Next</button>
-                </div>
-                <div class="error" id="error-q12" style="display:none;"></div>
-            </div>
-
-            <div class="question" id="question13" style="display:none;">
-                <p>13. How do you keep up-to-date with industry trends?</p>
-
-                <label><input type="radio" value="1" name="q13" required>I find it difficult to keep up</label>
-                <label><input type="radio" value="3" name="q13" required>Attending workshops and conferences</label>
-                <label><input type="radio" value="4" name="q13" required>Reading professional journals</label>
-                <label><input type="radio" value="2" name="q13" required>Networking with industry professionals</label>
-
-                <div class="submit-btn">
-                    <button type="button" onclick="showPrevious(13)">Previous</button>
-                    <button type="button" onclick="showNext(13)">Next</button>
-                </div>
-                <div class="error" id="error-q13" style="display:none;"></div>
-            </div>
-
-            <div class="question" id="question14" style="display:none;">
-                <p>14. How do you evaluate success?</p>
-
-                <label><input type="radio" value="2" name="q14" required>By receiving feedback from peers and
-                    supervisors</label>
-                <label><input type="radio" value="1" name="q14" required>By the impact of my work on the company's
-                    success</label>
-                <label><input type="radio" value="4" name="q14" required>By achieving personal goals</label>
-                <label><input type="radio" value="3" name="q14" required>By achieving team/department goals</label>
-
-                <div class="submit-btn">
-                    <button type="button" onclick="showPrevious(14)">Previous</button>
-                    <button type="button" onclick="showNext(14)">Next</button>
-                </div>
-                <div class="error" id="error-q14" style="display:none;"></div>
-            </div>
-
-            <div class="question" id="question15" style="display:none;">
-                <p>15. What was the last project you led, and what was its outcome?</p>
-
-                <label><input type="radio" value="3" name="q15" required>Successfully completed, but over budget</label>
-                <label><input type="radio" value="2" name="q15" required>Failed to complete</label>
-                <label><input type="radio" value="4" name="q15" required>Successfully completed on time</label>
-                <label><input type="radio" value="1" name="q15" required>Led to an unexpected positive outcome</label>
-
-                <div class="submit-btn">
-                    <button type="button" onclick="showPrevious(15)">Previous</button>
-                    <button type="button" onclick="showNext(15)">Next</button>
-                </div>
-                <div class="error" id="error-q15" style="display:none;"></div>
-            </div>
-
-            <div class="question" id="question16" style="display:none;">
-                <p>16. How do you handle a situation where you don't know the answer?</p>
-
-                <label><input type="radio" value="4" name="q16" required>Research until I find the answer</label>
-                <label><input type="radio" value="1" name="q16" required>Avoid the situation</label>
-                <label><input type="radio" value="3" name="q16" required>Ask a colleague or supervisor for
-                    guidance</label>
-                <label><input type="radio" value="2" name="q16" required>Use my best judgment and proceed</label>
-
-                <div class="submit-btn">
-                    <button type="button" onclick="showPrevious(16)">Previous</button>
-                    <button type="button" onclick="showNext(16)">Next</button>
-                </div>
-                <div class="error" id="error-q16" style="display:none;"></div>
-            </div>
-
-            <div class="question" id="question17" style="display:none;">
-                <p>17. How do you approach learning a new skill or technology?</p>
-
-                <label><input type="radio" value="3" name="q17" required>Cautiously but willing to try</label>
-                <label><input type="radio" value="2" name="q17" required>Reluctantly, only if necessary</label>
-                <label><input type="radio" value="1" name="q17" required>I prefer to stick with what I know</label>
-                <label><input type="radio" value="4" name="q17" required>With enthusiasm and determination</label>
-
-                <div class="submit-btn">
-                    <button type="button" onclick="showPrevious(17)">Previous</button>
-                    <button type="button" onclick="showNext(17)">Next</button>
-                </div>
-                <div class="error" id="error-q17" style="display:none;"></div>
-            </div>
-
-            <div class="question" id="question18" style="display:none;">
-                <p>18. Describe how you've worked under a tight deadline.</p>
-
-                <label><input type="radio" value="2" name="q18" required>Delegated tasks to others</label>
-                <label><input type="radio" value="4" name="q18" required>Prioritized tasks and worked
-                    efficiently</label>
-                <label><input type="radio" value="3" name="q18" required>Worked long hours to meet the deadline</label>
-                <label><input type="radio" value="1" name="q18" required>Missed the deadline</label>
-
-                <div class="submit-btn">
-                    <button type="button" onclick="showPrevious(18)">Previous</button>
-                    <button type="button" onclick="showNext(18)">Next</button>
-                </div>
-                <div class="error" id="error-q18" style="display:none;"></div>
-            </div>
-
-            <div class="question" id="question19" style="display:none;">
-                <p>19. How do you contribute to a positive work environment?</p>
-
-                <label><input type="radio" value="2" name="q19" required>By contributing to team goals</label>
-                <label><input type="radio" value="1" name="q19" required>Other</label>
-                <label><input type="radio" value="4" name="q19" required> By being supportive of colleagues</label>
-                <label><input type="radio" value="3" name="q19" required>By maintaining a positive attitude </label>
-
-                <div class="submit-btn">
-                    <button type="button" onclick="showPrevious(19)">Previous</button>
-                    <button type="button" onclick="showNext(19)">Next</button>
-                </div>
-                <div class="error" id="error-q19" style="display:none;"></div>
-            </div>
-
-            <div class="question" id="question20" style="display:none;">
-                <p>20. What motivates you at work?</p>
-
-                <label><input type="radio" value="4" name="q20" required>Competitives</label>
-                <label><input type="radio" value="3" name="q20" required>Collaborative</label>
-                <label><input type="radio" value="1" name="q20" required>Independent</label>
-                <label><input type="radio" value="2" name="q20" required>Flexible</label>
-
-
-            </div>
-            <div class="submit-btn" style="display:none;" id="submitDiv">
-                <button type="button" onclick="showPrevious(20)">Previous</button>
-                <button type="submit" id="submit-btn">Submit</button>
-                <div class="error" id="error-q20" style="display:none;"></div>
-            </div>
-
-
-            <div id="progress" style="margin-bottom: 20px;"></div>
-
-
+            <div id="progress"></div>
         </form>
     </div>
 
     <script>
-        const totalQuestions = 20;
+        const languageSelector = document.getElementById('language-selector');
+        const questionsContainer = document.getElementById('questions-container');
 
-        function showQuestion(questionNumber) {
+        const translations = {
+            en: {
+                greeting: "Welcome, {name} {surname}! Have a nice day! 😊",
+                questions: [
+                {
+                    text: "Describe your working style:",
+                    options: [
+                        { text: "Independently", value: "4" },
+                        { text: "As part of a team", value: "3" },
+                        { text: "In a leadership role", value: "2" },
+                        { text: "Flexible/Adaptable to any style", value: "1" }
+                    ]
+                },
+                {
+                    text: "How do you handle stress and pressure?",
+                    options: [
+                        { text: "Through physical activity or meditation", value: "3" },
+                        { text: "Ignoring it until the stressful period is over", value: "1" },
+                        { text: "By planning and prioritizing tasks", value: "4" }
+                    ]
+                },
+                {
+                    text: "What motivates you at work?",
+                    options: [
+                        { text: "Achieving goals", value: "4" },
+                        { text: "Helping others", value: "3" },
+                        { text: "Recognition and rewards", value: "1" },
+                        { text: "Personal development", value: "2" }
+                    ]
+                },
+                {
+                    text: "Describe your approach to problem-solving:",
+                    options: [
+                        { text: "Creative and intuitive", value: "3" },
+                        { text: "Analytical and methodical", value: "4" },
+                        { text: "I ask for help when needed", value: "1" },
+                        { text: "Practical and straightforward", value: "2" }
+                    ]
+                },
+                {
+                    text: "How do you prioritize your work?",
+                    options: [
+                        { text: "I struggle with prioritization", value: "1" },
+                        { text: "By task importance", value: "3" },
+                        { text: "Based on supervisor direction", value: "2" },
+                        { text: "By deadline", value: "4" }
+                    ]
+                },
+                {
+                    text: "How do you handle criticism?",
+                    options: [
+                        { text: "I use it as motivation", value: "1" },
+                        { text: "I take it constructively to improve", value: "4" },
+                        { text: "I find it difficult to accept", value: "2" },
+                        { text: "It depends on who it comes from", value: "3" }
+                    ]
+                },
+                {
+                    text: "What is your greatest strength?",
+                    options: [
+                        { text: "Communication skills", value: "4" },
+                        { text: "Problem-solving skills", value: "2" },
+                        { text: "Leadership abilities", value: "3" },
+                        { text: "Ability to learn quickly", value: "1" }
+                    ]
+                },
+                {
+                    text: "What is your greatest weakness?",
+                    options: [
+                        { text: "Hesitation to delegate", value: "3" },
+                        { text: "Taking on too much work", value: "2" },
+                        { text: "Impatience", value: "4" },
+                        { text: "Being too detail-oriented", value: "1" }
+                    ]
+                },
+                {
+                    text: "How do you manage conflicts in a team?",
+                    options: [
+                        { text: "By consulting with a supervisor", value: "1" },
+                        { text: "By avoiding conflict situations", value: "2" },
+                        { text: "By addressing issues directly", value: "4" },
+                        { text: "By mediating between parties", value: "3" }
+                    ]
+                },
+                {
+                    text: "Describe a time when you failed in this role and the lesson you learned.",
+                    options: [
+                        { text: "I have never failed in my role.", value: "1" },
+                        { text: "The failure was due to poor time management, and I've since improved my prioritization skills.", value: "2" },
+                        { text: "The failure was due to miscommunication, and I've worked on improving my communication skills.", value: "3" },
+                        { text: "The failure was due to a lack of skill, and I pursued additional training.", value: "4" }
+                    ]
+                },
+                {
+                    text: "Why do you want to work here?",
+                    options: [
+                        { text: "Other", value: "1" },
+                        { text: "The company's culture", value: "4" },
+                        { text: "The company's products/services", value: "2" },
+                        { text: "Career growth opportunities", value: "3" }
+                    ]
+                },
+                {
+                    text: "What are your career goals?",
+                    options: [
+                        { text: "To move into a leadership position", value: "4" },
+                        { text: "To specialize in my current field", value: "3" },
+                        { text: "I'm not sure yet", value: "1" },
+                        { text: "To transition to a different industry", value: "2" }
+                    ]
+                },
+                {
+                    text: "How do you keep up-to-date with industry trends?",
+                    options: [
+                        { text: "I find it difficult to keep up", value: "1" },
+                        { text: "Attending workshops and conferences", value: "3" },
+                        { text: "Reading professional journals", value: "4" },
+                        { text: "Networking with industry professionals", value: "2" }
+                    ]
+                },
+                {
+                    text: "How do you evaluate success?",
+                    options: [
+                        { text: "By receiving feedback from peers and supervisors", value: "2" },
+                        { text: "By the impact of my work on the company's success", value: "1" },
+                        { text: "By achieving personal goals", value: "4" },
+                        { text: "By achieving team/department goals", value: "3" }
+                    ]
+                },
+                {
+                    text: "What was the last project you led, and what was its outcome?",
+                    options: [
+                        { text: "Successfully completed, but over budget", value: "3" },
+                        { text: "Failed to complete", value: "2" },
+                        { text: "Successfully completed on time", value: "4" },
+                        { text: "Led to an unexpected positive outcome", value: "1" }
+                    ]
+                },
+                {
+                    text: "How do you handle a situation where you don't know the answer?",
+                    options: [
+                        { text: "Research until I find the answer", value: "4" },
+                        { text: "Avoid the situation", value: "1" },
+                        { text: "Ask a colleague or supervisor for guidance", value: "3" },
+                        { text: "Use my best judgment and proceed", value: "2" }
+                    ]
+                },
+                {
+                    text: "How do you approach learning a new skill or technology?",
+                    options: [
+                        { text: "Cautiously but willing to try", value: "3" },
+                        { text: "Reluctantly, only if necessary", value: "2" },
+                        { text: "I prefer to stick with what I know", value: "1" },
+                        { text: "With enthusiasm and determination", value: "4" }
+                    ]
+                },
+                {
+                    text: "Describe how you've worked under a tight deadline.",
+                    options: [
+                        { text: "Delegated tasks to others", value: "2" },
+                        { text: "Prioritized tasks and worked efficiently", value: "4" },
+                        { text: "Worked long hours to meet the deadline", value: "3" },
+                        { text: "Missed the deadline", value: "1" }
+                    ]
+                },
+                {
+                    text: "How do you contribute to a positive work environment?",
+                    options: [
+                        { text: "By contributing to team goals", value: "2" },
+                        { text: "Other", value: "1" },
+                        { text: "By being supportive of colleagues", value: "4" },
+                        { text: "By maintaining a positive attitude", value: "3" }
+                    ]
+                },
+                {
+                    text: "What motivates you at work?",
+                    options: [
+                        { text: "Competitives", value: "4" },
+                        { text: "Collaborative", value: "3" },
+                        { text: "Independent", value: "1" },
+                        { text: "Flexible", value: "2" }
+                    ]
+                }
+                ]
+            },
+            ru: {
+                questions: [
+                    {
+                        text: "Опишите ваш стиль работы:",
+                        options: [
+                            { text: "Независимо", value: "4" },
+                            { text: "В составе команды", value: "3" },
+                            { text: "В роли лидера", value: "2" },
+                            { text: "Гибкий/Адаптивный к любому стилю", value: "1" }
+                        ]
+                    },
+                    {
+                        text: "Опишите ваш стиль работы:1111",
+                        options: [
+                            { text: "Независимо", value: "4" },
+                            { text: "В составе команды", value: "3" },
+                            { text: "В роли лидера", value: "2" },
+                            { text: "Гибкий/Адаптивный к любому стилю", value: "1" }
+                        ]
+                    },
+
+                ]
+            },
+            hy: {
+                questions: [
+                    {
+                        text: "Նկարագրեք ձեր աշխատանքի ոճը:",
+                        options: [
+                            { text: "Անկախ", value: "4" },
+                            { text: "Թիմի մասնակից", value: "3" },
+                            { text: "Կառավարման դերում", value: "2" },
+                            { text: "Փոփոխվող/Ադապտիվ ոճի", value: "1" }
+                        ]
+                    },
+
+                ]
+            }
+        };
+
+        function updateLanguage(lang) {
+            const data = translations[lang];
+            questionsContainer.innerHTML = '';
+
+            data.questions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.id = `question${index + 1}`;
+                questionDiv.innerHTML = `<p>${index + 1}. ${q.text}</p>`;
+
+                q.options.forEach(option => {
+                    const label = document.createElement('label');
+                    const input = document.createElement('input');
+                    input.type = 'radio';
+                    input.name = `q${index + 1}`;
+                    input.value = option.value;
+                    input.required = true;
+                    label.appendChild(input);
+                    label.append(option.text);
+                    questionDiv.appendChild(label);
+                });
+
+                questionsContainer.appendChild(questionDiv);
+            });
+        }
+
+        languageSelector.addEventListener('change', function() {
+            updateLanguage(this.value);
+        });
+
+        updateLanguage(languageSelector.value);
+    </script>
+ <script>
+    $(document).ready(function() {
+        const languageSelector = $('#language-selector');
+        const questionsContainer = $('#questions-container');
+        let currentQuestionIndex = 0;
+        let totalQuestions = translations[languageSelector.val()].questions.length;
+
+        function loadQuestions(lang) {
+            const questions = translations[lang].questions;
+            questionsContainer.empty();
+            questions.forEach((q, index) => {
+                const questionDiv = $('<div>', { class: 'question', id: `question${index + 1}`, style: 'display: none;' });
+                const questionText = $('<p>').text(`${index + 1}. ${q.text}`);
+                const errorDiv = $('<div>', { class: 'error', text: 'This answer is required.', style: 'display: none; color: red;' });
+
+
+                questionDiv.append(questionText);
+                q.options.forEach(option => {
+                    const label = $('<label>');
+                    const input = $('<input>', { type: 'radio', name: `q${index + 1}`, value: option.value, required: true });
+                    label.append(input, option.text);
+                    questionDiv.append(label);
+                });
+
+                questionDiv.append(errorDiv);
+                questionsContainer.append(questionDiv);
+            });
+
+            totalQuestions = questions.length;
+            currentQuestionIndex = 1;
+            showQuestion(currentQuestionIndex);
+            initializeProgress();
+        }
+
+        function showQuestion(number) {
             $('.question').hide();
-
-            $(`#question${questionNumber}`).show();
-
-            if (questionNumber === totalQuestions) {
-                $('#submitDiv').show();
-                $('.next-btn').hide();
-            } else {
-                $('#submitDiv').hide();
-                $('.next-btn').show();
-            }
-
-            if (questionNumber === 1) {
-                $('.prev-btn').hide();
-            } else {
-                $('.prev-btn').show();
-            }
+            $(`#question${number}`).show();
+            updateProgress(number);
+            updateNavigationButtons(number);
         }
 
-        function showNext(questionNumber) {
-            if (validateQuestion(questionNumber)) {
-                showQuestion(questionNumber + 1);
+        function updateNavigationButtons(number) {
+            $('#prevButton').toggle(number > 1);
+            $('#nextButton').toggle(number < totalQuestions);
+            $('#submit-btn').toggle(number === 20);
+        }
+
+
+        function initializeProgress() {
+            const progressContainer = $('#progress');
+            progressContainer.empty();
+            for (let i = 1; i <= totalQuestions; i++) {
+                const circle = $('<span>').addClass('circle');
+                progressContainer.append(circle);
             }
+            updateProgress(1);
         }
 
-        function showPrevious(questionNumber) {
-            showQuestion(questionNumber - 1);
+        function updateProgress(index) {
+            $('.circle').slice(0, index).addClass('answered');
         }
 
-        function validateQuestion(questionNumber) {
-            const errorDivId = `error-q${questionNumber}`;
-            const errorDiv = $('#' + errorDivId);
-            const selectedValue = $(`input[name=q${questionNumber}]:checked`).val();
+        function validateQuestion() {
+            const inputs = $(`#question${currentQuestionIndex} input[type="radio"]`);
+            const errorDiv = $(`#question${currentQuestionIndex} .error`);
 
-            if (!selectedValue) {
-                errorDiv.text('This answer is required.').show();
-                return false;
-            } else {
+            if (inputs.is(':checked')) {
                 errorDiv.hide();
                 return true;
+            } else {
+                errorDiv.show();
+                return false;
             }
         }
 
-        $(document).ready(function () {
-            let progressHTML = '';
-            for (let i = 1; i <= totalQuestions; i++) {
-                progressHTML += '<span class="circle"></span>';
+        $('#nextButton').click(function() {
+            if (validateQuestion()) {
+                currentQuestionIndex++;
+                showQuestion(currentQuestionIndex);
             }
-            $('#progress').html(progressHTML);
+        });
 
-            showQuestion(1);
 
-            $('.next-btn').click(function () {
-                const currentQuestionNumber = parseInt($(this).data('question'));
-                showNext(currentQuestionNumber);
-            });
+        $('#prevButton').click(function() {
+            if (currentQuestionIndex > 1) {
+                currentQuestionIndex--;
+                showQuestion(currentQuestionIndex);
+            }
+        });
 
-            $('.prev-btn').click(function () {
-                const currentQuestionNumber = parseInt($(this).data('question'));
-                showPrevious(currentQuestionNumber);
-            });
 
-            $('input[type="radio"]').change(function () {
-                const name = $(this).attr('name');
-                const questionNumber = parseInt(name.substring(1));
-                $('#error-' + name).hide();
-                $('#progress .circle').eq(questionNumber - 1).addClass('answered');
-            });
+        languageSelector.change(function() {
+            loadQuestions(this.value);
+            currentQuestionIndex = 1;
+        });
 
-            $('#submit-btn').click(function (event) {
-                if (!validateQuestion(totalQuestions)) {
-                    event.preventDefault();
-                }
-            });
-
-            $('.prev-btn').hide();
+        loadQuestions(languageSelector.val());
         });
     </script>
 
