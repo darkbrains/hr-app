@@ -87,7 +87,7 @@ async def handle_signup(request: Request, email: str = Form(...), phone: str = F
                     token = generate_token(email, phone)
                     new_code = generate_verification_code()
                     update_verification_code(email, new_code)
-                    send_email(email, new_code)
+                    send_email(email, new_code, lang)
                     return templates.TemplateResponse("verify.html", {"request": request, "email": email, "phone": phone, "auth_token": token, "lang": lang})
             else:
                 message = get_message('incorrect_password', lang)
@@ -97,7 +97,7 @@ async def handle_signup(request: Request, email: str = Form(...), phone: str = F
             verification_code = generate_verification_code()
             register_user(email, phone, name, surname, verification_code, hashed_password)
             store_verification_code(email, verification_code)
-            send_email(email, verification_code)
+            send_email(email, verification_code, lang)
             token = generate_token(email, phone)
             return templates.TemplateResponse("verify.html", {"request": request, "email": email, "phone": phone, "auth_token": token, "lang": lang})
     except Exception as e:
@@ -145,7 +145,7 @@ async def submit_form(request: Request, auth_token: str = Form(...), lang: str =
             return HTMLResponse(content="All questions must be answered.", status_code=400)
 
         score = calculate_suitability_score([int(v) for v in responses.values() if v is not None])
-        mark_test_as_completed(email, score, phone)
+        mark_test_as_completed(email, score, phone, lang)
         save_user_progress(email, TOTAL_QUESTIONS, responses, phone)
         return templates.TemplateResponse("results.html", {"request": request, "lang": lang})
     except Exception as e:

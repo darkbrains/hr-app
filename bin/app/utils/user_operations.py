@@ -23,6 +23,7 @@ def user_exists(email: str, phone: str) -> bool:
             connection.close()
     return False
 
+
 def is_user_verified(email: str, phone: str) -> bool:
     connection = create_db_connection()
     if connection:
@@ -42,6 +43,7 @@ def is_user_verified(email: str, phone: str) -> bool:
             cursor.close()
             connection.close()
     return False
+
 
 def get_user_data(email: str, phone: str):
     connection = create_db_connection()
@@ -88,6 +90,7 @@ def mark_user_as_verified(email: str, phone: str):
             cursor.close()
             connection.close()
 
+
 def register_user(email: str, phone: str, name: str, surname: str, verification_code: str, hashed_password: str):
     connection = create_db_connection()
     if connection:
@@ -105,14 +108,15 @@ def register_user(email: str, phone: str, name: str, surname: str, verification_
             cursor.close()
             connection.close()
 
-def mark_test_as_completed(email: str, score: float, phone: str):
+
+def mark_test_as_completed(email: str, score: float, phone: str, lang: str):
     connection = create_db_connection()
     if connection:
         try:
             cursor = connection.cursor()
             cursor.execute(
-                "UPDATE USERS SET test_completed = TRUE, test_score = %s WHERE email = %s AND phone = %s",
-                (score, email, phone)
+                "UPDATE USERS SET test_completed = TRUE, test_score = %s, lang = %s WHERE email = %s AND phone = %s",
+                (score, lang, email, phone)
             )
             connection.commit()
             logger.info(f"Test marked as completed for {email}. Score: {score}")
@@ -121,6 +125,7 @@ def mark_test_as_completed(email: str, score: float, phone: str):
         finally:
             cursor.close()
             connection.close()
+
 
 def save_user_progress(email: str, last_question_completed: int, answers: dict, phone: str):
     connection = create_db_connection()

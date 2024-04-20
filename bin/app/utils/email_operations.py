@@ -1,18 +1,29 @@
 import asyncio
-import smtplib, ssl
+import smtplib
+import ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from utils.logger import logger
 from utils.envs import EMAIL_ADDRESS, EMAIL_PASSWORD
 from utils.db_operations import create_db_connection
 
-
 email_verification_texts = {
-    'en': "Your verification code is: {}. This code will expire in 5 minutes.",
-    'ru': "Ваш проверочный код: {}. Код будет действителен в течение 5 минут.",
-    'hy': "Ձեր հաստատման կոդը՝ {}. Այս կոդը կանցնի 5 րոպեից։"
+    'en': {
+        'message': "Your verification code is",
+        'header': "Verification Needed",
+        'footer': "Best regards,<br>People Connect Team"
+    },
+    'ru': {
+        'message': "Ваш проверочный код",
+        'header': "Требуется верификация",
+        'footer': "С уважением,<br>People Connect Team"
+    },
+    'hy': {
+        'message': "Ձեր հաստատման կոդը",
+        'header': "Պահանջվում է վերահսկում",
+        'footer': "Հարգանքներով,<br>People Connect Team"
+    }
 }
-
 
 email_contents = {
     'en': {
@@ -65,29 +76,62 @@ email_contents = {
     }
 }
 
-
-def send_email(receiver_email, code, lang='en'):
-    try:
-        text = email_verification_texts.get(lang, email_verification_texts).format(code)
-        message = MIMEMultipart("alternative")
-        message["Subject"] = "Verification Code"
-        message["From"] = EMAIL_ADDRESS
-        message["To"] = receiver_email
-        part1 = MIMEText(text, "plain")
-        message.attach(part1)
-
-        context = ssl.create_default_context()
-
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-            server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-            server.sendmail(EMAIL_ADDRESS, receiver_email, message.as_string())
-            logger.info(f"Verification email sent to {receiver_email} in {lang}")
-
-    except smtplib.SMTPException as e:
-        logger.error(f"SMTP error occurred while sending email to {receiver_email}: {e}")
-    except Exception as e:
-        logger.error(f"Unexpected error occurred while sending email to {receiver_email}: {e}")
-
+html_template = """
+<html>
+    <head>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                color: #333333;
+                margin: 0;
+                padding: 0;
+            }}
+            .container {{
+                background-color: #ffffff;
+                width: 100%;
+                max-width: 600px;
+                margin: 20px auto;
+                padding: 20px;
+                text-align: center;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0,0,0,.05);
+            }}
+            .header {{
+                background-color: #b1dbdb;
+                color: #ffffff;
+                padding: 10px;
+                border-top-left-radius: 8px;
+                border-top-right-radius: 8px;
+            }}
+            .code {{
+                font-size: 24px;
+                margin: 20px;
+                padding: 10px 0;
+            }}
+            .footer {{
+                margin-top: 20px;
+                font-size: 14px;
+                color: #777777;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>{header}</h1>
+            </div>
+            <p>{body}</p>
+            <div class="code">
+                {code}
+            </div>
+            <p class="footer">
+                {footer}
+            </p>
+        </div>
+    </body>
+</html>
+"""
 
 def update_email_status(email, status):
     conn = create_db_connection()
@@ -112,57 +156,92 @@ def update_email_status(email, status):
             conn.close()
 
 
-def send_custom_email(receiver_email, subject, message, lang='en'):
+def send_email(receiver_email, code, lang='en'):
     try:
-        mime_message = MIMEMultipart("alternative")
-        mime_message["Subject"] = subject
-        mime_message["From"] = EMAIL_ADDRESS
-        mime_message["To"] = receiver_email
-        part1 = MIMEText(message, "plain")
-        mime_message.attach(part1)
-
+        content = email_verification_texts[lang]
+        text = content['message'].format(code)
+        html_message = html_template.format(
+            header=content['header'],
+            body=text,
+            code=code,
+            footer=content['footer']
+        )
+        message = MIMEMultipart("alternative")
+        message["Subject"] = content['header']
+        message["From"] = EMAIL_ADDRESS
+        message["To"] = receiver_email
+        part1 = MIMEText(text, "plain")
+        part2 = MIMEText(html_message, "html")
+        message.attach(part1)
+        message.attach(part2)
         context = ssl.create_default_context()
         with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
             server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-            server.sendmail(EMAIL_ADDRESS, receiver_email, mime_message.as_string())
-            logger.info(f"Custom email sent to {receiver_email} with subject: '{subject}' in {lang}")
-
+            server.sendmail(EMAIL_ADDRESS, receiver_email, message.as_string())
+            logger.info(f"Verification email sent to {receiver_email} in {lang}")
     except smtplib.SMTPException as e:
         logger.error(f"SMTP error occurred while sending email to {receiver_email}: {e}")
     except Exception as e:
         logger.error(f"Unexpected error occurred while sending email to {receiver_email}: {e}")
 
 
-async def send_email_with_delay(email, score, lang):
+def send_custom_email(receiver_email, subject, content, lang):
+    html_message = html_template.format(
+        header=content['header'],
+        body=content['message'],
+        code=content.get('code', ''),
+        footer='Best regards,<br>The People Connect Team'
+    )
+    mime_message = MIMEMultipart("alternative")
+    mime_message["Subject"] = subject
+    mime_message["From"] = EMAIL_ADDRESS
+    mime_message["To"] = receiver_email
+    mime_message.attach(MIMEText(html_message, "html"))
+    try:
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+            server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+            server.send_message(mime_message)
+            logger.info(f"Email sent to {receiver_email} in {lang}")
+    except Exception as e:
+        logger.error(f"Error sending email to {receiver_email}: {e}")
+
+
+async def send_email_with_delay(email, score, lang='en'):
     try:
         if score < 50:
             await send_rejection_email(email, lang)
         else:
             await send_invitation_email(email, lang)
     except Exception as e:
-        logger.error(f'Error in send_email_with_delay() function: {e}')
+        logger.error(f'Error processing email sending with delay for {email}: {e}')
 
 
 async def send_rejection_email(receiver_email, lang='en'):
-    content = email_contents.get(lang)
     try:
-        subject = content['rejection_subject']
-        message = content['rejection_message']
+        content = email_contents.get(lang, {})
+        rejection_content = {
+            'header': content['rejection_subject'],
+            'message': content['rejection_message']
+        }
         await asyncio.sleep(900)
-        send_custom_email(receiver_email, subject, message)
-        logger.info(f"Rejection email sent to {receiver_email} in {lang}")
+        await send_custom_email(receiver_email, content['rejection_subject'], rejection_content, lang)
         update_email_status(receiver_email, True)
+        logger.info(f"Rejection email sent to {receiver_email}")
     except Exception as e:
-        logger.error(f'Error in send_rejection_email() function: {e}')
+        logger.error(f'Error sending rejection email to {receiver_email}: {e}')
+
 
 async def send_invitation_email(receiver_email, lang='en'):
-    content = email_contents.get(lang)
     try:
-        subject = content['invitation_subject']
-        message = content['invitation_message']
+        content = email_contents.get(lang, {})
+        invitation_content = {
+            'header': content['invitation_subject'],
+            'message': content['invitation_message']
+        }
         await asyncio.sleep(900)
-        send_custom_email(receiver_email, subject, message)
-        logger.info(f"Invitation email sent to {receiver_email} in {lang}")
+        await send_custom_email(receiver_email, content['invitation_subject'], invitation_content, lang)
         update_email_status(receiver_email, True)
+        logger.info(f"Invitation email sent to {receiver_email}")
     except Exception as e:
-        logger.error(f'Error in send_invitation_email() function: {e}')
+        logger.error(f'Error sending invitation email to {receiver_email}: {e}')
