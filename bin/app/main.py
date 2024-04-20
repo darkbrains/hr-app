@@ -15,7 +15,6 @@ from utils.formater import format_name, format_email
 from utils.verification_codes import generate_verification_code, store_verification_code, get_verification_code, update_verification_code
 from utils.email_operations import send_email
 from utils.counter import calculate_suitability_score
-from utils.email_resend import setup_scheduler
 from utils.envs import TOTAL_QUESTIONS, PORT
 from utils.password import hash_password
 from utils.tokens import  generate_token, get_user_data_from_token, tokens
@@ -24,7 +23,7 @@ from utils.error_messages import get_message
 app = FastAPI()
 
 app.add_event_handler("startup", create_database_and_tables)
-app.add_event_handler("startup", setup_scheduler)
+
 
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")

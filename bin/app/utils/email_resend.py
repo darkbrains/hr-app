@@ -1,4 +1,3 @@
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from utils.db_operations import create_db_connection
 from utils.logger import logger
 from utils.email_operations import send_invitation_email, send_rejection_email, update_email_status
@@ -35,16 +34,3 @@ async def resend_emails():
             cursor.close()
         if connection:
             connection.close()
-
-
-def setup_scheduler():
-    try:
-        scheduler = AsyncIOScheduler()
-        scheduler.add_job(resend_emails, 'interval', minutes=10)
-        scheduler.start()
-        logger.info("Scheduler has been set up and started.")
-    except Exception as e:
-        logger.error(f"Error setting up or starting the scheduler: {e}")
-
-if __name__ == "__main__":
-    setup_scheduler()
