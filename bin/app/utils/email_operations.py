@@ -168,7 +168,7 @@ def send_email(receiver_email, code, lang='en'):
         )
         message = MIMEMultipart("alternative")
         message["Subject"] = content['header']
-        message["From"] = EMAIL_ADDRESS
+        message["From"] = "People Connect Team"
         message["To"] = receiver_email
         part1 = MIMEText(text, "plain")
         part2 = MIMEText(html_message, "html")
@@ -194,7 +194,7 @@ def send_custom_email(receiver_email, subject, content, lang):
     )
     mime_message = MIMEMultipart("alternative")
     mime_message["Subject"] = subject
-    mime_message["From"] = EMAIL_ADDRESS
+    mime_message["From"] = "People Connect Team"
     mime_message["To"] = receiver_email
     mime_message.attach(MIMEText(html_message, "html"))
     try:
