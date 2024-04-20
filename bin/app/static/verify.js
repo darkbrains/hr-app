@@ -2,17 +2,20 @@ const translations = {
     'en': {
         'title': 'Verify Your Account',
         'description': 'We have sent a verification code to your email. Please check your inbox.',
-        'signupBtn': 'Verify'
+        'signupBtn': 'Verify',
+        'errorMessage': 'This field is required.'
     },
     'ru': {
         'title': 'Проверьте ваш аккаунт',
         'description': 'Мы отправили код подтверждения на вашу электронную почту. Пожалуйста, проверьте ваш почтовый ящик.',
-        'signupBtn': 'Проверять'
+        'signupBtn': 'Проверять',
+        'errorMessage': 'Это поле обязательно.'
     },
     'hy': {
         'title': 'Ստուգեք Ձեր հաշիվը',
         'description': 'Մենք ուղարկել ենք վավերացման կոդ Ձեր էլեկտրոնային փոստին։ Խնդրում ենք, ստուգեք Ձեր նամականիշը։',
-        'signupBtn': 'Հաստատել'
+        'signupBtn': 'Հաստատել',
+        'errorMessage': 'Պատասխանը պարտադիր է։'
     }
 };
 
@@ -22,6 +25,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const title = document.getElementById('title');
     const description = document.getElementById('description');
     const submitButton = document.getElementById('signupBtn');
+    const form = document.getElementById('verifyForm');
+    const codeInput = document.querySelector('.code-input');
+    const errorMessage = document.querySelector('.error-message');
 
 
     function updateLanguage(lang) {
@@ -29,6 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
         title.textContent = langTranslations.title;
         description.textContent = langTranslations.description;
         submitButton.textContent = langTranslations.signupBtn;
+        errorMessage.textContent = langTranslations.errorMessage;
     }
 
 
@@ -40,46 +47,22 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('selectedLanguage', newLang);
         updateLanguage(newLang);
     });
-});
 
 
-document.querySelectorAll('.code-input').forEach((input, index, array) => {
-    input.addEventListener('keyup', (e) => {
-        handleInputFocusChange(e, index, array);
-    });
-
-    input.addEventListener('paste', (e) => {
-        handlePaste(e, array);
-    });
-});
-
-
-function handleInputFocusChange(e, index, array) {
-    if (index < array.length - 1 && e.target.value) {
-        array[index + 1].focus();
-    } else if (index > 0 && !e.target.value) {
-        array[index - 1].focus();
-    }
-    updateFullCode(array);
-}
-
-
-function handlePaste(e, array) {
-    e.preventDefault();
-    const pasteData = e.clipboardData.getData('text');
-    pasteData.split('').forEach((char, index) => {
-        if (index < array.length) {
-            array[index].value = char;
+    codeInput.addEventListener('input', function() {
+        this.value = this.value.replace(/\D/g, '');
+        if (this.value.length > 6) {
+            this.value = this.value.substring(0, 6);
         }
     });
-    updateFullCode(array);
-}
 
 
-function updateFullCode(array) {
-    let fullCode = '';
-    array.forEach(codeInput => {
-        fullCode += codeInput.value;
+    form.addEventListener('submit', function(event) {
+        if (!codeInput.value || codeInput.value.length !== 6) {
+            event.preventDefault();
+            errorMessage.style.display = 'block';
+        } else {
+            errorMessage.style.display = 'none';
+        }
     });
-    document.getElementById('fullCode').value = fullCode;
-}
+});
