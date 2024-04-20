@@ -1,31 +1,3 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" type="image/x-icon" href="/static/background_c.webp?v=3"/>
-    <title>People Connect</title>
-    <link rel="stylesheet" href="/static/registration.css?=v3">
-</head>
-<body>
-    <div class="login-container">
-        <div class="login-form">
-            <h1>Registration Error</h1>
-            <p>You have already passed the test and now you cannot take it again.</p>
-            <div class="error-img">
-                <img src="/static/oops_b.webp?v=3">
-            </div>
-            <button onclick="goBack()" class="button">Go Back Home</button>
-        </div>
-    </div>
-    <script>
-        function goBack() {
-            window.history.back();
-        }
-    </script>
-</body>
-</html> -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -48,53 +20,116 @@
             background-repeat: no-repeat;
             height: 100vh;
         }
-
         .container {
             background: linear-gradient(145deg, #fffff0 0%, #ecfcfd 125%);
             padding: 20px;
             font-size: 16px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .login-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-        }
-        .login-form {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             text-align: center;
             width: 300px;
         }
         button {
             padding: 12px 12px;
-            width: auto;
+            width: 100%;
             font-size: 20px;
             border-radius: 5px;
             border: none;
             background-color: #dffdff;
             color: rgb(0, 0, 0);
             cursor: pointer;
-            display: inline-block;
+            display: block;
+            margin-top: 20px;
         }
         button:hover {
             background-color: #b1dbdb;
+        }
+        select:hover {
+            background-color: #fffff0;
+        }
+        select#language-selector {
+            background-repeat: no-repeat;
+            background-size: 20px;
+            padding-right: 0px;
+        }
+        @-moz-document url-prefix() {
+            select#language-selector {
+                background-image: none;
+            }
+        }
+        @media (max-width: 768px) {
+            select#language-selector {
+                width: 90%;
+            }
+        }
+        select {
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 20px;
+            background-color: #fffff9;
+            color: #5ca2c2;
+            cursor: pointer;
+            font-size: 1em;
+            text-transform: uppercase;
+            outline: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Warning!</h1>
-        <p>You've successfully completed the test! We'll be in touch via email, SMS, or a phone call.</p>
-        <form id="v1" action="/" method="GET">
-            <button onclick="goBack()" class="button" type="submit">Go Back</button>
-        </form>
+        <input type="hidden" name="lang" value="{{ lang }}">
+        <select id="language-selector">
+            <option value="en">English</option>
+            <option value="ru">Русский</option>
+            <option value="hy">Հայերեն</option>
+        </select>
+        <h1 id="warning-title">Warning!</h1>
+        <p id="main-text">You've successfully completed the test! We'll be in touch via email, SMS, or a phone call.</p>
+        <button onclick="goBack()" id="finish-btn" type="button">Go back</button>
     </div>
+
     <script>
+        const translations = {
+            en: {
+                title: "Warning!",
+                text: "You've successfully completed the test! We'll be in touch via email, SMS, or a phone call.",
+                button: 'Go back'
+            },
+            ru: {
+                title: "Внимание!",
+                text: "Вы успешно завершили тест! Мы свяжемся с вами по электронной почте, SMS или по телефону.",
+                button: 'Вернуться'
+            },
+            hy: {
+                title: "Զգուշացում!",
+                text: "Դուք հաջողակապես ավարտել եք թեստը։ Մենք կհաղորդակցվենք ձեզ հետ էլ․ փոստով, SMS-ով կամ հեռախոսով։",
+                button: 'Վերադառնալ'
+            }
+        };
+
+        const languageSelector = document.getElementById('language-selector');
+        const titleElement = document.getElementById('warning-title');
+        const textElement = document.getElementById('main-text');
+        const buttonElement = document.getElementById('finish-btn');
+
+        function updateLanguage(lang) {
+            titleElement.textContent = translations[lang].title;
+            textElement.textContent = translations[lang].text;
+            buttonElement.textContent = translations[lang].button;
+        }
+
+        const currentLang = localStorage.getItem('selectedLanguage') || 'hy';
+        languageSelector.value = currentLang;
+        updateLanguage(currentLang);
+
+        languageSelector.addEventListener('change', function() {
+            localStorage.setItem('selectedLanguage', this.value);
+            updateLanguage(this.value);
+        });
+
         function goBack() {
             window.history.back();
         }
