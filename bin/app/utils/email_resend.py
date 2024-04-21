@@ -17,13 +17,13 @@ async def resend_emails():
             """
         )
         users = cursor.fetchall()
-        for email, test_score, final_email_sent, lang in users:
+        for email, test_score, lang, final_email_sent in users:
             if final_email_sent:
                 continue
             if test_score < 50:
-                await send_rejection_email(email, lang)
+                send_rejection_email(email, lang)
             else:
-                await send_invitation_email(email, lang)
+                send_invitation_email(email, lang)
             update_email_status(email, True)
             logger.info(f"Email based on test score sent to {email}. Test Score: {test_score}")
 
