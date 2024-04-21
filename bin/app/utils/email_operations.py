@@ -1,4 +1,3 @@
-import asyncio
 import smtplib
 import ssl
 from email.mime.text import MIMEText
@@ -207,40 +206,38 @@ def send_custom_email(receiver_email, subject, content, lang):
         logger.error(f"Error sending email to {receiver_email}: {e}")
 
 
-async def send_email_with_delay(email, score, lang='en'):
+def send_email_with_delay(email, score, lang='en'):
     try:
         if score < 50:
-            await send_rejection_email(email, lang)
+            send_rejection_email(email, lang)
         else:
-            await send_invitation_email(email, lang)
+            send_invitation_email(email, lang)
     except Exception as e:
         logger.error(f'Error processing email sending with delay for {email}: {e}')
 
 
-async def send_rejection_email(receiver_email, lang='en'):
+def send_rejection_email(receiver_email, lang='en'):
     try:
         content = email_contents.get(lang, {})
         rejection_content = {
             'header': content['rejection_subject'],
             'message': content['rejection_message']
         }
-        await asyncio.sleep(900)
-        await send_custom_email(receiver_email, content['rejection_subject'], rejection_content, lang)
+        send_custom_email(receiver_email, content['rejection_subject'], rejection_content, lang)
         update_email_status(receiver_email, True)
         logger.info(f"Rejection email sent to {receiver_email}")
     except Exception as e:
         logger.error(f'Error sending rejection email to {receiver_email}: {e}')
 
 
-async def send_invitation_email(receiver_email, lang='en'):
+def send_invitation_email(receiver_email, lang='en'):
     try:
         content = email_contents.get(lang, {})
         invitation_content = {
             'header': content['invitation_subject'],
             'message': content['invitation_message']
         }
-        await asyncio.sleep(900)
-        await send_custom_email(receiver_email, content['invitation_subject'], invitation_content, lang)
+        send_custom_email(receiver_email, content['invitation_subject'], invitation_content, lang)
         update_email_status(receiver_email, True)
         logger.info(f"Invitation email sent to {receiver_email}")
     except Exception as e:
