@@ -12,13 +12,13 @@ async def resend_emails():
         cursor = connection.cursor()
         cursor.execute(
             """
-            SELECT email, test_score, lang, final_email_sent FROM USERS
-            WHERE test_completed = TRUE AND is_verified = TRUE AND final_email_sent = FALSE
+            SELECT email, test_score, lang, final_message_sent FROM USERS
+            WHERE test_completed = TRUE AND is_verified = TRUE AND final_message_sent = FALSE
             """
         )
         users = cursor.fetchall()
-        for email, test_score, lang, final_email_sent in users:
-            if final_email_sent:
+        for email, test_score, lang, final_message_sent in users:
+            if final_message_sent:
                 continue
             if test_score < 50:
                 send_rejection_email(email, lang)
