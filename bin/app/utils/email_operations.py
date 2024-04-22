@@ -132,7 +132,7 @@ html_template = """
 </html>
 """
 
-def update_email_status(email, status):
+def update_message_status(email, status):
     conn = create_db_connection()
     if conn is None:
         logger.error("Failed to connect to database for updating email status.")
@@ -141,7 +141,7 @@ def update_email_status(email, status):
     try:
         cursor = conn.cursor()
         cursor.execute(
-            "UPDATE USERS SET final_email_sent = %s WHERE email = %s",
+            "UPDATE USERS SET final_message_sent = %s WHERE email = %s",
             (status, email)
         )
         conn.commit()
@@ -224,7 +224,7 @@ def send_rejection_email(receiver_email, lang='en'):
             'message': content['rejection_message']
         }
         send_custom_email(receiver_email, content['rejection_subject'], rejection_content, lang)
-        update_email_status(receiver_email, True)
+        update_message_status(receiver_email, True)
         logger.info(f"Rejection email sent to {receiver_email}")
     except Exception as e:
         logger.error(f'Error sending rejection email to {receiver_email}: {e}')
@@ -238,7 +238,7 @@ def send_invitation_email(receiver_email, lang='en'):
             'message': content['invitation_message']
         }
         send_custom_email(receiver_email, content['invitation_subject'], invitation_content, lang)
-        update_email_status(receiver_email, True)
+        update_message_status(receiver_email, True)
         logger.info(f"Invitation email sent to {receiver_email}")
     except Exception as e:
         logger.error(f'Error sending invitation email to {receiver_email}: {e}')

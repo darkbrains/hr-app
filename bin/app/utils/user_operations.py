@@ -91,14 +91,14 @@ def mark_user_as_verified(email: str, phone: str):
             connection.close()
 
 
-def register_user(email: str, phone: str, name: str, surname: str, verification_code: str, hashed_password: str):
+def register_user(email: str, phone: str, name: str, surname: str, email_verification_code: str, phone_verification_code: str, hashed_password: str):
     connection = create_db_connection()
     if connection:
         try:
             cursor = connection.cursor()
             cursor.execute(
-                "INSERT INTO USERS (email, phone, name, surname, verification_code, password) VALUES (%s, %s, %s, %s, %s, %s)",
-                (email, phone, name, surname, verification_code, hashed_password)
+                "INSERT INTO USERS (email, phone, name, surname, email_verification_code, phone_verification_code, password) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                (email, phone, name, surname, email_verification_code, phone_verification_code, hashed_password)
             )
             connection.commit()
             logger.info(f"User {email} registered successfully.")
