@@ -15,10 +15,14 @@ from utils.formater import format_name, format_email
 from utils.verification_codes import generate_verification_code, store_verification_code, get_verification_code, update_verification_code
 from utils.email_operations import send_email
 from utils.counter import calculate_suitability_score
-from utils.envs import TOTAL_QUESTIONS, PORT
+from utils.envs import TOTAL_QUESTIONS, PORT, ZADARMA_API_KEY, ZADARMA_API_SECRET
 from utils.password import hash_password
 from utils.tokens import  generate_token, get_user_data_from_token, tokens
 from utils.error_messages import get_message
+from utils.phone_operations import ZadarmaAPI
+
+
+api = ZadarmaAPI(ZADARMA_API_KEY, ZADARMA_API_SECRET)
 
 app = FastAPI()
 
@@ -65,7 +69,8 @@ async def signup(request: Request):
 
 
 @app.post("/signup")
-async def handle_signup(request: Request, email: str = Form(...), phone: str = Form(...), name: str = Form(None), surname: str = Form(None), password: str = Form(...), lang: str = Form(...)):
+async def handle_signup(request: Request, email: str = Form(...), phone: str = Form(...),
+                        name: str = Form(None), surname: str = Form(None), password: str = Form(...), lang: str = Form(...)):
     try:
         email = format_email(email)
         name = format_name(name)
@@ -84,19 +89,20 @@ async def handle_signup(request: Request, email: str = Form(...), phone: str = F
                         return templates.TemplateResponse("already_registered.html", {"request": request, "email": email, "lang": lang})
                 else:
                     token = generate_token(email, phone)
-                    new_code = generate_verification_code()
-                    update_verification_code(email, new_code)
-                    send_email(email, new_code, lang)
+                    new_email_code = generate_verification_code()
+                    update_verification_code(email, new_email_code, new_phone_code=None)
+                    send_email(email, new_email_code, lang)
                     return templates.TemplateResponse("verify.html", {"request": request, "email": email, "phone": phone, "auth_token": token, "lang": lang})
             else:
                 message = get_message('incorrect_password', lang)
                 return templates.TemplateResponse("error.html", {"request": request, "error": message, "status_code": 401, "lang": lang})
         else:
             hashed_password = hash_password(password)
-            verification_code = generate_verification_code()
-            register_user(email, phone, name, surname, verification_code, hashed_password)
-            store_verification_code(email, verification_code)
-            send_email(email, verification_code, lang)
+            email_verification_code = generate_verification_code()
+            phone_verification_code = generate_verification_code()
+            register_user(email, phone, name, surname, email_verification_code, phone_verification_code, hashed_password)
+            store_verification_code(email, email_verification_code, phone_verification_code)
+            send_email(email, email_verification_code, lang)
             token = generate_token(email, phone)
             return templates.TemplateResponse("verify.html", {"request": request, "email": email, "phone": phone, "auth_token": token, "lang": lang})
     except Exception as e:
@@ -173,40 +179,32 @@ async def show_verify(request: Request, token: str, lang: str = Form(...)):
 
 
 @app.post("/verify")
-async def verify(request: Request, token: str = Form(...), lang: str = Form(...),
-                 email: str = Form(...), phone: str = Form(...),
-                 code: str = Form(...)):
+async def verify(request: Request, email: str = Form(...), phone: str = Form(...), token: str = Form(...),
+                 lang: str = Form(...), code_email: str = Form(None), code_phone: str = Form(None)):
     try:
-        logger.info('Handling request for "/verify".')
-        stored_code, timestamp = get_verification_code(email)
-
-        if timestamp is None:
-            logger.error(f"No verification code or timestamp found for {email}")
-            message = get_message('verify_no_code', lang)
-            return templates.TemplateResponse("error.html", {"request": request, "error": message, "lang": lang})
-
+        stored_email_code, stored_phone_code, timestamp = get_verification_code(email)
         current_time = int(time.time())
-        if stored_code == code and current_time - timestamp <= 300:
-            mark_user_as_verified(email, phone)
-            token_data = get_user_data_from_token(token)
-            if not token_data:
-                raise HTTPException(status_code=401, detail="Unauthorized access")
-            email = token_data['email']
-            phone = token_data['phone']
-            user_data = get_user_data(email, phone)
-            if not user_data:
-                raise HTTPException(status_code=404, detail="User not found")
-            return templates.TemplateResponse("verify_success.html", {"request": request, "email": email, "auth_token": token, "lang": lang})
-        elif current_time - timestamp > 300:
-            new_code = generate_verification_code()
-            update_verification_code(email, new_code)
-            message = get_message('verify_expired', lang)
-            return templates.TemplateResponse("error.html", {"request": request, "error": message, "lang": lang})
+
+        if code_email and not code_phone:
+            if stored_email_code == code_email and current_time - timestamp <= 300:
+                api.send_verification_code(phone, code_phone, lang)
+                return templates.TemplateResponse("verify_phone.html", {"request": request, "email": email, "phone": phone, "auth_token": token, "lang": lang, "code_email": code_email})
+            else:
+                message = get_message('verify_incorrect', lang)
+                return templates.TemplateResponse("error.html", {"request": request, "error": message, "lang": lang})
+
+        elif code_phone:
+            if stored_phone_code == code_phone and current_time - timestamp <= 300:
+                mark_user_as_verified(email, phone)
+                return templates.TemplateResponse("verify_success.html", {"request": request, "email": email, "auth_token": token, "lang": lang})
+            else:
+                message = get_message('verify_incorrect', lang)
+                return templates.TemplateResponse("error.html", {"request": request, "error": message, "lang": lang})
+
         else:
-            message = get_message('verify_incorrect', lang)
+            message = get_message('verify_missing_code', lang)
             return templates.TemplateResponse("error.html", {"request": request, "error": message, "lang": lang})
-    except HTTPException as exc:
-        return await http_exception_handler(request, exc)
+
     except Exception as e:
         logger.error(f"Verification process failed for {email}: {e}")
         message = get_message('verify_error', lang)
@@ -228,7 +226,7 @@ async def check_code_expiration(request: Request, data: dict = Body(...)):
             return {"expired": expired}
         except Exception as e:
             logger.error(f'Unexpected error occurred for "/check_code_expiration": {e}')
-            return {"error": "Failed to check code expiration. Please try again later."}
+            return {"error": "Failed to check codes expiration. Please try again later."}
     else:
         raise HTTPException(status_code=401, detail="Unauthorized")
 
@@ -240,12 +238,13 @@ async def regenerate_code(request: Request, data: dict = Body(...)):
     user_data = tokens.get(token)
     if user_data and user_data['email'] == email:
         try:
-            new_code = generate_verification_code()
-            update_verification_code(email, new_code)
+            new_email_code = generate_verification_code()
+            new_phone_code = generate_verification_code()
+            update_verification_code(email, new_email_code, new_phone_code)
             return JSONResponse(content={"success": True})
         except Exception as e:
-            logger.error(f'Error regenerating code for {email}: {e}')
-            return JSONResponse(content={"success": False, "error": "Failed to regenerate code. Please try again."})
+            logger.error(f'Error regenerating codes for {email}: {e}')
+            return JSONResponse(content={"success": False, "error": "Failed to regenerate codes. Please try again."})
     else:
         raise HTTPException(status_code=401, detail="Unauthorized")
 

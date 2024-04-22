@@ -95,21 +95,22 @@
     </select>
     <div class="login-container">
         <div class="login-form">
-            <h1 id="title">Verify Your Email</h1>
-            <p id="description">We have sent an verification code to your email. Please check your inbox.</p>
+            <h1 id="title">Verify Your Phone</h1>
+            <p id="description">We have sent a verification code to your phone number. Please check your inbox.</p>
             <form id="verifyForm" action="/verify" method="POST" novalidate>
                 <div class="code-input-group">
                     <input type="hidden" id="email" name="email" value="{{ email }}">
                     <input type="hidden" id="phone" name="phone" value="{{ phone }}">
                     <input type="hidden" name="token" value="{{ auth_token }}">
                     <input type="hidden" name="lang" value="{{ lang }}">
-                    <input class="code-input" id="code" name="code_email" type="number" inputmode="numeric" pattern="\d{6}" required placeholder="_ _ _ _ _ _">
+                    <input type="hidden" name="code_email" value="{{ code_email }}">
+                    <input class="code-input" id="code_phone" name="code_phone" type="number" inputmode="numeric" pattern="\d{6}" required placeholder="_ _ _ _ _ _">
                     <div class="error-message" style="color: rgb(255, 0, 106); display: none; margin-top: 24px">This field is required.</div>
                 </div>
                 <button type="submit" id="signupBtn">Verify</button>
             </form>
         </div>
     </div>
-    <script src="/static/verify.js"></script>
+    <script src="/static/verify_phone.js"></script>
 </body>
 </html>

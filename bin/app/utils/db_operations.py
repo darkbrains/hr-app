@@ -26,7 +26,8 @@ def create_database_and_tables():
                     email VARCHAR(255) NOT NULL,
                     name VARCHAR(255) NOT NULL,
                     surname VARCHAR(255) NOT NULL,
-                    verification_code VARCHAR(6) DEFAULT NULL,
+                    email_verification_code VARCHAR(6) DEFAULT NULL,
+                    phone_verification_code VARCHAR(6) DEFAULT NULL,
                     password VARCHAR(255) DEFAULT NULL,
                     test_completed BOOLEAN DEFAULT FALSE,
                     last_question_completed INT DEFAULT 0,
@@ -46,7 +47,8 @@ def create_database_and_tables():
                 CREATE TABLE IF NOT EXISTS VERIFICATION_CODES (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     email VARCHAR(255) NOT NULL,
-                    code VARCHAR(6) NOT NULL,
+                    email_code VARCHAR(6) NOT NULL,
+                    phone_code VARCHAR(6) NOT NULL,
                     timestamp INT NOT NULL,
                     INDEX(email),
                     FOREIGN KEY (email) REFERENCES USERS(email) ON DELETE CASCADE
