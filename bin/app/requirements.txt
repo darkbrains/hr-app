@@ -2,6 +2,7 @@ uvicorn
 fastapi
 jinja2
 pyyaml
+requests
 python-multipart
 prometheus-client
 python-json-logger
