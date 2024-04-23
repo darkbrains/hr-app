@@ -187,7 +187,7 @@ async def verify(request: Request, email: str = Form(...), phone: str = Form(...
 
         if code_email and not code_phone:
             if stored_email_code == code_email and current_time - timestamp <= 300:
-                api.send_verification_code(phone, code_phone, lang)
+                api.send_verification_code(phone, stored_phone_code, lang)
                 return templates.TemplateResponse("verify_phone.html", {"request": request, "email": email, "phone": phone, "auth_token": token, "lang": lang, "code_email": code_email})
             else:
                 message = get_message('verify_incorrect', lang)
