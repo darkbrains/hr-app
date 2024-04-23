@@ -1,21 +1,21 @@
 const translations = {
     'en': {
-        'title': 'Verify Your Account',
-        'description': 'We have sent a verification code to your email. Please check your inbox.',
+        'title': 'Verify Your Email',
+        'description': 'The confirmation code has been sent to your email address. Please check your inbox.',
         'signupBtn': 'Verify',
-        'errorMessage': 'This field is required.'
+        'errorMessage': 'The field is required.'
     },
     'ru': {
-        'title': 'Проверьте ваш аккаунт',
-        'description': 'Мы отправили код подтверждения на вашу электронную почту. Пожалуйста, проверьте ваш почтовый ящик.',
+        'title': 'Подтвердите свой адрес электронной почты',
+        'description': 'Код подтверждения был отправлен на ваш адрес электронной почты. Пожалуйста, проверьте ваш почтовый ящик.',
         'signupBtn': 'Проверять',
         'errorMessage': 'Это поле обязательно.'
     },
     'hy': {
-        'title': 'Ստուգեք Ձեր հաշիվը',
-        'description': 'Մենք ուղարկել ենք վավերացման կոդ Ձեր էլեկտրոնային փոստին։ Խնդրում ենք, ստուգեք Ձեր նամականիշը։',
+        'title': 'Հաստատեք Ձեր էլ. փոստի հասցեն',
+        'description': 'Հաստատման կոդը ուղարկվել է Ձեր էլ․ փոստին։ Խնդրում ենք, ստուգեք Ձեր հաղորդագրությունները։',
         'signupBtn': 'Հաստատել',
-        'errorMessage': 'Պատասխանը պարտադիր է։'
+        'errorMessage': 'Դաշտը պարտադիր է։'
     }
 };
 

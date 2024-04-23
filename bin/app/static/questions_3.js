@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const translations = {
         'en': `Welcome, ${userName} ${userSurname}! Have a nice day! 😊`,
         'ru': `Добро пожаловать, ${userName} ${userSurname}! Желаем хорошего дня! 😊`,
-        'hy': `Բարի գալուստ, ${userName} ${userSurname}! Հաճելի օր ունեցեք! 😊`
+        'hy': `Բարի գալուստ, ${userName} ${userSurname}! Մաղթում ենք Ձեզ հաճելի օր: 😊`
     };
 
     function updateLanguage(lang) {

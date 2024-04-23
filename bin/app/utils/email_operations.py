@@ -8,19 +8,19 @@ from utils.db_operations import create_db_connection
 
 email_verification_texts = {
     'en': {
-        'message': "Your verification code is",
-        'header': "Verification Needed",
-        'footer': "Best regards,<br>People Connect Team"
+        'message': "Your verification code is: ",
+        'header': "Verification Reqired",
+        'footer': "Best regards <br>People Connect Team"
     },
     'ru': {
-        'message': "Ваш проверочный код",
+        'message': "Ваш код верификаци: ",
         'header': "Требуется верификация",
-        'footer': "С уважением,<br>People Connect Team"
+        'footer': "С уважением <br>People Connect Team"
     },
     'hy': {
-        'message': "Ձեր հաստատման կոդը",
-        'header': "Պահանջվում է վերահսկում",
-        'footer': "Հարգանքներով,<br>People Connect Team"
+        'message': "Ձեր նույնականացման կոդն է՝ ",
+        'header': "Պահանջվում է նույնականացում",
+        'footer': "Հարգանքով` <br>People Connect Team"
     }
 }
 
@@ -29,48 +29,48 @@ email_contents = {
         'rejection_subject': "Thank You for Your Participation",
         'rejection_message': (
             "Thank you for your time and patience throughout the interview process.\n\n"
-            "We regret to inform you that your result did not qualify for the next stage of the recruitment process.\n\n"
+            "We regret to inform you that your result did not qualify for the next stage of the interview process.\n\n"
             "We wish you all the best in your future endeavors.\n\n"
-            "Best regards,\nThe People Connect Team"
+            "Best regards\nThe People Connect Team"
         ),
         'invitation_subject': "Congratulations - Next Steps in People Connect",
         'invitation_message': (
             "Congratulations on successfully passing the initial screening!\n\n"
-            "We are pleased to invite you to the next interview stage for a specific position with our company.\n\n"
-            "We will notify you of further actions within 2 business days.\n\n"
-            "Best regards,\nThe People Connect Team"
+            "We are pleased to invite you to the next stage of the interview.\n\n"
+            "We will inform you about further actions within 2 business days.\n\n"
+            "Best regards\nThe People Connect Team"
         )
     },
     'ru': {
         'rejection_subject': "Спасибо за ваше участие",
         'rejection_message': (
             "Благодарим вас за время и терпение в течение всего процесса собеседования.\n\n"
-            "К сожалению, мы должны сообщить, что вы не прошли в следующий этап процесса подбора персонала.\n\n"
-            "Желаем вам успехов в будущих начинаниях.\n\n"
-            "С уважением,\nКоманда People Connect"
+            "К сожалению, мы должны сообщить, что вы не прошли в следующий этап процесса собеседования.\n\n"
+            "Желаем вам всего наилучшего в вашей дальнейшей деятельности.\n\n"
+            "С уважением\nКоманда People Connect"
         ),
         'invitation_subject': "Поздравляем - Следующие шаги в People Connect",
         'invitation_message': (
             "Поздравляем с успешным прохождением начального отбора!\n\n"
-            "Мы рады пригласить вас на следующий этап собеседования на конкретную должность в нашей компании.\n\n"
-            "Мы уведомим вас о дальнейших действиях в течение 2 рабочих дней.\n\n"
-            "С уважением,\nКоманда People Connect"
+            "Мы рады пригласить вас на следующий этап собеседования.\n\n"
+            "сообщим вам о дальнейших действиях в течение 2 рабочих дней.\n\n"
+            "С уважением\nКоманда People Connect"
         )
     },
     'hy': {
         'rejection_subject': "Շնորհակալություն մասնակցության համար",
         'rejection_message': (
-            "Շնորհակալություն ձեր ժամանակի և համարձակության համար ընդհանուր հանդիպման ընթացքում։\n\n"
-            "Ցավոք, պետք է հայտնել, որ ձեր արդյունքը չի հաջողվել հաջորդ փուլին։\n\n"
-            "Մենք ձեզ մեծ հաջողություն մաղթում ենք ձեր ապագա ձեռնարկություններում։\n\n"
-            "Բարեհաջողներով,\nPeople Connect թիմը"
+            "Շնորհակալություն հարցազրույցի ողջ ընթացքում ձեր ժամանակի և համբերության համար:\n\n"
+            "Ցավոք, մենք պետք է տեղեկացնենք, որ դուք չեք անցել հարցազրույցի հաջորդ փուլ:\n\n"
+            "Մաղթում ենք ձեզ ամենայն բարիք ձեր հետագա գործունեության մեջ։\n\n"
+            "Հարգանքով`\nPeople Connect թիմը"
         ),
-        'invitation_subject': "Շնորհավորումներ - Հաջորդ քայլերը People Connect-ում",
+        'invitation_subject': "Շնորհակալություն մասնակցության համար - Հաջորդ քայլերը People Connect-ում",
         'invitation_message': (
-            "Շնորհավորումներ հաջողակ անցումով նախնական ընտրություններից։\n\n"
-            "Մենք ուրախ ենք հրավիրել ձեզ մեր կոմպանիայի որոշակի դիրքի հաջորդ փուլի հանդիպմանը։\n\n"
-            "Մենք կծանուցենք ձեզ հաջորդ ակտիվությունների մասին 2 աշխատանքային օրերի ընթացքում։\n\n"
-            "Բարեհաջողներով,\nPeople Connect թիմը"
+            "Շնորհավորում ենք նախնական հարցազրույցի հաջող ավարտի կապակցությամբ:\n\n"
+            "Մենք ուրախ ենք Ձեզ հրավիրել հարցազրույցի հաջորդ փուլ։\n\n"
+            "Մենք ձեզ կտեղեկացնենք հետագա գործողությունների մասին 2 աշխատանքային օրվա ընթացքում:\n\n"
+            "Հարգանքով`\nPeople Connect թիմը"
         )
     }
 }

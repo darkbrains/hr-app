@@ -1,21 +1,21 @@
 const translations = {
     'en': {
         'title': 'Verify Your Phone',
-        'description': 'We have sent a verification code to your phone number. Please check your messages.',
+        'description': 'The confirmation code has been sent to your phone number. Please check your messages.',
         'signupBtn': 'Verify',
-        'errorMessage': 'This field is required.'
+        'errorMessage': 'The field is required.'
     },
     'ru': {
         'title': 'Подтвердите свой телефон',
-        'description': 'Мы отправили код подтверждения на ваш номер телефона. Пожалуйста, проверьте свои сообщения.',
+        'description': 'Код подтверждения был отправлен на ваш номер телефона. Пожалуйста, проверьте свои сообщения.',
         'signupBtn': 'Проверять',
         'errorMessage': 'Это поле обязательно.'
     },
     'hy': {
         'title': 'Հաստատեք ձեր հեռախոսը',
-        'description': 'Մենք հաստատման կոդ ենք ուղարկել ձեր հեռախոսահամարին: Խնդրում ենք ստուգել ձեր հաղորդագրությունները։',
+        'description': 'Հաստատման կոդը ուղարկել է Ձեր հեռախոսահամարին: ',
         'signupBtn': 'Հաստատել',
-        'errorMessage': 'Պատասխանը պարտադիր է։'
+        'errorMessage': 'Դաշտը պարտադիր է։'
     }
 };
 
