@@ -1,6 +1,6 @@
 from utils.db_operations import create_db_connection
 from utils.logger import logger
-from utils.email_operations import send_invitation_email, send_rejection_email, update_email_status
+from utils.email_operations import send_invitation_email, send_rejection_email, update_message_status
 
 async def resend_emails():
     connection = create_db_connection()
@@ -24,7 +24,7 @@ async def resend_emails():
                 send_rejection_email(email, lang)
             else:
                 send_invitation_email(email, lang)
-            update_email_status(email, True)
+            update_message_status(email, True)
             logger.info(f"Email based on test score sent to {email}. Test Score: {test_score}")
 
     except Exception as e:
