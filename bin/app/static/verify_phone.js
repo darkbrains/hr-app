@@ -3,7 +3,7 @@ const translations = {
         'title': 'Verify Your Phone',
         'description': 'The confirmation code has been sent to your phone number. Please check your messages.',
         'signupBtn': 'Verify',
-        'errorMessage': 'This field is required.'
+        'errorMessage': 'The field is required.'
     },
     'ru': {
         'title': 'Подтвердите свой телефон',
@@ -15,7 +15,7 @@ const translations = {
         'title': 'Հաստատեք ձեր հեռախոսը',
         'description': 'Հաստատման կոդը ուղարկել է Ձեր հեռախոսահամարին: ',
         'signupBtn': 'Հաստատել',
-        'errorMessage': 'Պատասխանը պարտադիր է։'
+        'errorMessage': 'Դաշտը պարտադիր է։'
     }
 };
 

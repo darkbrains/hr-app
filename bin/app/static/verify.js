@@ -3,7 +3,7 @@ const translations = {
         'title': 'Verify Your Email',
         'description': 'The confirmation code has been sent to your email address. Please check your inbox.',
         'signupBtn': 'Verify',
-        'errorMessage': 'This field is required.'
+        'errorMessage': 'The field is required.'
     },
     'ru': {
         'title': 'Подтвердите свой адрес электронной почты',
@@ -15,7 +15,7 @@ const translations = {
         'title': 'Հաստատեք Ձեր էլ. փոստի հասցեն',
         'description': 'Հաստատման կոդը ուղարկվել է Ձեր էլ․ փոստին։ Խնդրում ենք, ստուգեք Ձեր հաղորդագրությունները։',
         'signupBtn': 'Հաստատել',
-        'errorMessage': 'Պատասխանը պարտադիր է։'
+        'errorMessage': 'Դաշտը պարտադիր է։'
     }
 };
 
