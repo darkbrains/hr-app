@@ -10,6 +10,8 @@ async def main():
         logger.info('The resend_emails function completed successfully.')
         await resend_messages()
         logger.info('The resend_messages function completed successfully.')
+        update_message_status(email, True)
+        logger.info(f"Update message status for {email}.")
     except Exception as e:
         logger.error(f'Unexpected error occurred: {e}')
 
