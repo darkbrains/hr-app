@@ -157,12 +157,12 @@ const translations = {
             ]
         },
         {
-            text: "Describe how you've worked under a tight deadline.",
+            text: "Describe how you would work under tight deadlines.",
             options: [
-                { text: "Delegate tasks to others", value: "2" },
-                { text: "Prioritize tasks and worked efficiently", value: "4" },
-                { text: "Worke long hours to meet the deadline", value: "3" },
-                { text: "Missed the deadline", value: "1" }
+                { text: "Delegating tasks to others", value: "2" },
+                { text: "Prioritize tasks and get work done efficiently", value: "4" },
+                { text: "Work long hours to meet deadlines", value: "3" },
+                { text: "Skip deadline", value: "1" }
             ]
         },
         {
@@ -347,12 +347,12 @@ const translations = {
             ]
         },
         {
-            text: "Опишите, как вы работали в сжатые сроки.",
+            text: "Опишите, как вы будете работать в сжатые сроки.",
             options: [
                 { text: "Делегирование задач другим", value: "2" },
-                { text: "Расставил приоритеты задач и работал эффективно", value: "4" },
-                { text: "Работал много часов, чтобы уложиться в срок", value: "3" },
-                { text: "Пропустил срок", value: "1" }
+                { text: "Расставляйте приоритеты задач и выполняйте работу эффективно», значение", value: "4" },
+                { text: "Работать сверхурочно, чтобы уложиться в сроки», значение", value: "3" },
+                { text: "Пропустить срок", value: "1" }
             ]
         },
         {
@@ -538,9 +538,9 @@ const translations = {
             ]
         },
         {
-            text: "Նկարագրեք, թե ինչպես եք աշխատել սեղմ ժամկետներում:",
+            text: "Նկարագրեք, թե ինչպես կաշխատեք սեղմ ժամկետներում:",
             options: [
-                { text: "Առաջադրանքներ հանձնարարել ուրիշներին", value: "2" },
+                { text: "Հանձնարարելով առաջադրանքներ ուրիշներին", value: "2" },
                 { text: "Առաջնահերթություն տալ առաջադրանքներին  և կատարել արդյունավետ աշխատանք", value: "4" },
                 { text: "Աշխատել երկար ժամեր՝ վերջնաժամկետները պահպանելու համար", value: "3" },
                 { text: "Բաց թողնել վերջնաժամկետը", value: "1" }
