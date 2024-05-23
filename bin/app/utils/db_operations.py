@@ -38,7 +38,8 @@ def create_database_and_tables():
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                     final_message_sent BOOLEAN DEFAULT FALSE,
                     lang VARCHAR(10) NULL,
-                    UNIQUE(email, phone),
+                    UNIQUE(email),
+                    UNIQUE(phone),
                     INDEX(email),
                     INDEX(phone)
                 )
