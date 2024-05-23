@@ -1,0 +1,39 @@
+FROM ubuntu:latest as build
+
+RUN apt-get update -y && \
+    apt-get install -y wget build-essential libffi-dev libssl-dev zlib1g-dev \
+    libbz2-dev libreadline-dev libsqlite3-dev libncurses5-dev libncursesw5-dev \
+    xz-utils tk-dev liblzma-dev git autoconf
+
+RUN wget https://ftp.gnu.org/gnu/bash/bash-5.2.tar.gz && \
+    tar -xzf bash-5.2.tar.gz && \
+    cd bash-5.2 && \
+    ./configure --prefix=/usr/local --without-bash-malloc && \
+    make && \
+    make install
+
+RUN wget https://www.python.org/ftp/python/3.12.3/Python-3.12.3.tar.xz && \
+    tar -xf Python-3.12.3.tar.xz
+
+WORKDIR /Python-3.12.3
+
+RUN ./configure --enable-optimizations --prefix=/usr/local/python3.12 && \
+    make -j8 && \
+    make altinstall
+
+RUN /usr/local/python3.12/bin/python3.12 -m ensurepip && \
+    /usr/local/python3.12/bin/pip3.12 install --upgrade pip && \
+    ln -s /usr/local/python3.12/bin/pip3.12 /usr/local/python3.12/bin/pip
+
+FROM scratch
+
+COPY --from=build /usr/local/bin/bash /bin/bash
+COPY --from=build /usr/local/python3.12 /usr/local/python3.12
+COPY --from=build /lib/x86_64-linux-gnu/ /lib/x86_64-linux-gnu/
+COPY --from=build /lib64/ /lib64/
+COPY --from=build /usr/lib/x86_64-linux-gnu/ /usr/lib/x86_64-linux-gnu/
+COPY --from=build /usr/local/python3.12/bin/pip /usr/local/python3.12/bin/pip
+
+ENV PATH="/usr/local/python3.12/bin:$PATH"
+
+CMD ["python3.12"]
