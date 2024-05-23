@@ -26,13 +26,7 @@ RUN /usr/local/python3.12/bin/python3.12 -m ensurepip && \
 
 FROM scratch
 
-COPY --from=build /usr/local/bin/bash /bin/bash
-COPY --from=build /usr/local/python3.12 /usr/local/python3.12
-COPY --from=build /lib/x86_64-linux-gnu/ /lib/x86_64-linux-gnu/
-COPY --from=build /lib64/ /lib64/
-COPY --from=build /usr/lib/x86_64-linux-gnu/ /usr/lib/x86_64-linux-gnu/
-COPY --from=build /usr/local/python3.12/bin/python3 /usr/local/python3.12/bin/python3
-COPY --from=build /usr/local/python3.12/bin/pip /usr/local/python3.12/bin/pip
+COPY --from=build /usr/local /usr/local
 
 ENV PATH="/usr/local/python3.12/bin:$PATH"
 
