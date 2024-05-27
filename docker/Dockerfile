@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY bin/app/requirements.txt .
 
-RUN pip3.12 install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY /bin/app .
 

@@ -24,9 +24,9 @@ jobs:
           registry: docker.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      # - name: Build and push Base Image
-      #   run: |
-      #     docker buildx build --platform linux/amd64,linux/arm64  -t darkbrains/python:3.12.3 -f ./docker/Dockerfile.base . --push
+      - name: Build and push Base Image
+        run: |
+          docker buildx build --platform linux/amd64,linux/arm64  -t darkbrains/python:3.12.3 -f ./docker/Dockerfile.base . --push
       - name: Build and push
         run: |
           docker buildx build --platform linux/amd64,linux/arm64  -t darkbrains/peopleconnect:${{ github.sha }} -f ./docker/Dockerfile . --push
