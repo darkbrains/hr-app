@@ -1,4 +1,4 @@
-FROM ubuntu:latest as build
+FROM ubuntu:latest as buildone
 
 RUN apt-get update -y && \
     apt-get install -y wget build-essential libffi-dev libssl-dev zlib1g-dev \
@@ -8,9 +8,16 @@ RUN apt-get update -y && \
 RUN wget https://ftp.gnu.org/gnu/bash/bash-5.2.tar.gz && \
     tar -xzf bash-5.2.tar.gz && \
     cd bash-5.2 && \
-    ./configure --prefix=/usr/local --without-bash-malloc && \
+    ./configure --prefix=/usr/local --enable-static-link  --without-bash-malloc && \
     make && \
     make install
+
+FROM ubuntu:latest as buildtwo
+
+RUN apt-get update -y && \
+    apt-get install -y wget build-essential libffi-dev libssl-dev zlib1g-dev \
+    libbz2-dev libreadline-dev libsqlite3-dev libncurses5-dev libncursesw5-dev \
+    xz-utils tk-dev liblzma-dev git autoconf
 
 RUN wget https://www.python.org/ftp/python/3.12.3/Python-3.12.3.tar.xz && \
     tar -xf Python-3.12.3.tar.xz && \
@@ -20,13 +27,17 @@ RUN wget https://www.python.org/ftp/python/3.12.3/Python-3.12.3.tar.xz && \
     make altinstall
 
 RUN /usr/local/python3.12/bin/python3.12 -m ensurepip && \
-    /usr/local/python3.12/bin/pip3.12 install --upgrade pip && \
-    ln -s /usr/local/python3.12/bin/python3.12 /usr/local/python3.12/bin/python3 && \
+    /usr/local/python3.12/bin/pip3.12 install --upgrade pip
+
+RUN ln -s /usr/local/python3.12/bin/python3.12 /usr/local/python3.12/bin/python3 && \
     ln -s /usr/local/python3.12/bin/pip3.12 /usr/local/python3.12/bin/pip
 
 FROM scratch
 
-COPY --from=build /usr/local /usr/local
+COPY --from=buildone /usr/local/bin/bash /bin/bash
+COPY --from=buildtwo /usr/local/python3.12 /usr/local/python3.12
+COPY --from=buildtwo /lib/x86_64-linux-gnu/ /lib/x86_64-linux-gnu/
+COPY --from=buildtwo /lib64 /lib64
 
 ENV PATH="/usr/local/python3.12/bin:$PATH"
 
