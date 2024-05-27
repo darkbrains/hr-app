@@ -23,7 +23,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const verified = document.getElementById('verified');
     const redirect = document.getElementById('redirect');
 
-
     function updateLanguage(lang) {
         const langTranslations = translations[lang];
         title.textContent = langTranslations.title;
@@ -31,10 +30,11 @@ document.addEventListener('DOMContentLoaded', function() {
         redirect.textContent = langTranslations.redirect;
     }
 
+    const serverLang = document.querySelector('input[name="lang"]').value;
 
-    const currentLang = localStorage.getItem('selectedLanguage') || 'hy';
-    languageSelector.value = currentLang;
-    updateLanguage(currentLang);
+    languageSelector.value = serverLang;
+    updateLanguage(serverLang);
+
     languageSelector.addEventListener('change', function() {
         const newLang = this.value;
         localStorage.setItem('selectedLanguage', newLang);

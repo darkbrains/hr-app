@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const codeInput = document.querySelector('.code-input');
     const errorMessage = document.querySelector('.error-message');
 
-
     function updateLanguage(lang) {
         const langTranslations = translations[lang];
         title.textContent = langTranslations.title;
@@ -38,16 +37,16 @@ document.addEventListener('DOMContentLoaded', function() {
         errorMessage.textContent = langTranslations.errorMessage;
     }
 
+    const serverLang = document.querySelector('input[name="lang"]').value;
 
-    const currentLang = localStorage.getItem('selectedLanguage') || 'hy';
-    languageSelector.value = currentLang;
-    updateLanguage(currentLang);
+    languageSelector.value = serverLang;
+    updateLanguage(serverLang);
+
     languageSelector.addEventListener('change', function() {
         const newLang = this.value;
         localStorage.setItem('selectedLanguage', newLang);
         updateLanguage(newLang);
     });
-
 
     codeInput.addEventListener('input', function() {
         this.value = this.value.replace(/\D/g, '');
@@ -55,7 +54,6 @@ document.addEventListener('DOMContentLoaded', function() {
             this.value = this.value.substring(0, 6);
         }
     });
-
 
     form.addEventListener('submit', function(event) {
         if (!codeInput.value || codeInput.value.length !== 6) {
