@@ -1,8 +1,9 @@
 name: Build the peopleconnect app, test and deploy
 on:
-  push:
+  pull_request:
     branches:
       - main
+    types: [closed]
 jobs:
   build-docker-image-amd:
     if: github.event.pull_request.merged == true
