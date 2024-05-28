@@ -50,6 +50,7 @@ jobs:
           docker buildx build --platform linux/${{ matrix.platform }} -t darkbrains/python:3.12.3 -f ./docker/${{ matrix.dockerfile }} . --push
 
   build-main-image:
+    needs: build-base-image
     runs-on: ubuntu-latest
     strategy:
       matrix:
