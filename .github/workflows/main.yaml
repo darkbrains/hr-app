@@ -27,7 +27,6 @@ jobs:
             dockerfile: Dockerfile.base.amd
           - platform: arm64
             dockerfile: Dockerfile.base.arm
-    if: ${{ github.event.inputs.buildBaseImage == 'yes' && (github.event.inputs.baseImagePlatform == 'both' || github.event.inputs.baseImagePlatform == matrix.platform) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -46,6 +45,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Base Image
+        if: ${{ github.event.inputs.buildBaseImage == 'yes' && (github.event.inputs.baseImagePlatform == 'both' || github.event.inputs.baseImagePlatform == matrix.platform) }}
         run: |
           docker buildx build --platform linux/${{ matrix.platform }} -t darkbrains/python:3.12.3 -f ./docker/${{ matrix.dockerfile }} . --push
 
@@ -54,8 +54,6 @@ jobs:
     strategy:
       matrix:
         platform: [amd64, arm64]
-    if: ${{ github.event.inputs.mainImagePlatform == 'both' || github.event.inputs.mainImagePlatform == matrix.platform }}
-    needs: build-base-image
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -71,11 +69,12 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Main Image
+        if: ${{ github.event.inputs.mainImagePlatform == 'both' || github.event.inputs.mainImagePlatform == matrix.platform }}
         run: |
           docker buildx build --platform linux/${{ matrix.platform }} -t darkbrains/peopleconnect:${{ github.sha }} -f ./docker/Dockerfile . --push
 
   edit-image-tag:
-    needs: build-main-image
+    needs: [build-base-image, build-main-image]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout target repository
