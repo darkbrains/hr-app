@@ -58,7 +58,7 @@ jobs:
           docker buildx build --platform linux/arm64  -t darkbrains/peopleconnect:${{ github.sha }} -f ./docker/Dockerfile . --push
 
   edit-image-tag:
-    needs: [build-docker-image-amd, build-docker-image-arm]
+    needs: [build-docker-image-arm]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout target repository
