@@ -1,18 +1,18 @@
 const errorTranslations = {
-    'en': {
-        'title': 'Oops! Something went wrong.',
-        'message': '{{ error }}',
-        'homeLink': 'Go back'
+    en: {
+        title: 'Oops! Something went wrong.',
+        message: '{{ error }}',
+        homeLink: 'Go back'
     },
-    'ru': {
-        'title': 'Упс! Что-то пошло не так.',
-        'message': '{{ error }}',
-        'homeLink': 'Вернуться на главную'
+    ru: {
+        title: 'Упс! Что-то пошло не так.',
+        message: '{{ error }}',
+        homeLink: 'Вернуться на главную'
     },
-    'hy': {
-        'title': 'Վայ! Ինչ-որ բան սխալ է արվել։',
-        'message': '{{ error }}',
-        'homeLink': 'Վերադառնալ'
+    hy: {
+        title: 'Վայ! Ինչ-որ բան սխալ է արվել։',
+        message: '{{ error }}',
+        homeLink: 'Վերադառնալ'
     }
 };
 
@@ -20,14 +20,15 @@ const errorTranslations = {
 
 document.addEventListener('DOMContentLoaded', function() {
     const languageSelector = document.getElementById('language-selector');
-    const title = document.getElementById('error-title');
-    const submitButton = document.getElementById('home-link');;
-    const errorMessage = document.getElementById('error-message');
+    const title = document.getElementById('title');
+    const description = document.getElementById('error-message');
+    const submitButton = document.getElementById('signupBtn');
+
     function updateLanguage(lang) {
-        const langTranslations = translations[lang];
+        const langTranslations = errorTranslations[lang];
         title.textContent = langTranslations.title;
-        submitButton.textContent = langTranslations.signupBtn;
-        errorMessage.textContent = langTranslations.errorMessage;
+        // description.textContent = langTranslations.description;
+        submitButton.textContent = langTranslations.homeLink;
     }
 
     const serverLang = document.querySelector('input[name="lang"]').value;
@@ -39,13 +40,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const newLang = this.value;
         localStorage.setItem('selectedLanguage', newLang);
         updateLanguage(newLang);
-    });
-
-    codeInput.addEventListener('input', function() {
-        this.value = this.value.replace(/\D/g, '');
-        if (this.value.length > 6) {
-            this.value = this.value.substring(0, 6);
-        }
     });
 
     form.addEventListener('submit', function(event) {

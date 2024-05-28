@@ -14,6 +14,7 @@
         <option value="hy" {% if lang == 'hy' %} selected {% endif %}>Հայերեն</option>
     </select>
     <div class="login-container">
+        <input type="hidden" name="lang" value="{{ lang }}">
         <div class="login-form">
             <h1 id="title">Oops! Something went wrong.</h1>
             <div class="error-img">

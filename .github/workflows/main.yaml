@@ -1,13 +1,33 @@
 name: Build the peopleconnect app, test and deploy
+
 on:
-  pull_request:
-    branches:
-      - main
-    types: [closed]
+  workflow_dispatch:
+    inputs:
+      buildBaseImage:
+        description: 'Build Base Images? (yes or no)'
+        required: true
+        default: 'no'
+      baseImagePlatform:
+        description: 'Platform for Base Images (amd, arm, both)'
+        required: false
+        default: 'both'
+      mainImagePlatform:
+        description: 'Platform for Main Images (amd, arm, both)'
+        required: true
+        default: 'both'
+
 jobs:
-  build-docker-image-amd:
-    if: github.event.pull_request.merged == true
+  build-base-image:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [amd64, arm64]
+        include:
+          - platform: amd64
+            dockerfile: Dockerfile.base.amd
+          - platform: arm64
+            dockerfile: Dockerfile.base.arm
+    if: ${{ github.event.inputs.buildBaseImage == 'yes' && (github.event.inputs.baseImagePlatform == 'both' || github.event.inputs.baseImagePlatform == matrix.platform) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -24,22 +44,21 @@ jobs:
           registry: docker.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Build and push Base Image
         run: |
-          docker buildx build --platform linux/amd64  -t darkbrains/python:3.12.3 -f ./docker/Dockerfile.base.amd . --push
-      - name: Build and push
-        run: |
-          docker buildx build --platform linux/amd64  -t darkbrains/peopleconnect:${{ github.sha }} -f ./docker/Dockerfile . --push
+          docker buildx build --platform linux/${{ matrix.platform }} -t darkbrains/python:3.12.3 -f ./docker/${{ matrix.dockerfile }} . --push
 
-  build-docker-image-arm:
-    if: github.event.pull_request.merged == true
+  build-main-image:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [amd64, arm64]
+    if: ${{ github.event.inputs.mainImagePlatform == 'both' || github.event.inputs.mainImagePlatform == matrix.platform }}
+    needs: build-base-image
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -50,15 +69,13 @@ jobs:
           registry: docker.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Build and push Base Image
+
+      - name: Build and push Main Image
         run: |
-          docker buildx build --platform linux/arm64  -t darkbrains/python:3.12.3 -f ./docker/Dockerfile.base.arm . --push
-      - name: Build and push
-        run: |
-          docker buildx build --platform linux/arm64  -t darkbrains/peopleconnect:${{ github.sha }} -f ./docker/Dockerfile . --push
+          docker buildx build --platform linux/${{ matrix.platform }} -t darkbrains/peopleconnect:${{ github.sha }} -f ./docker/Dockerfile . --push
 
   edit-image-tag:
-    needs: [build-docker-image-amd, build-docker-image-arm]
+    needs: build-main-image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout target repository
@@ -75,10 +92,9 @@ jobs:
           git_user_signingkey: true
           git_commit_gpgsign: true
 
-      - name: Delever to K8S
+      - name: Deliver to K8S
         run: |
           sed -i "s|docker.io/darkbrains/peopleconnect:[^ ]*|docker.io/darkbrains/peopleconnect:${{ github.sha }}|" ./saas/peopleconnect/values.yaml
-        working-directory: ./
 
       - name: Sign commit and push changes
         run: |
