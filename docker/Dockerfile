@@ -1,4 +1,4 @@
-FROM docker.io/darkbrains/python:3.12.3
+FROM docker.io/darkbrains/python:3.12.3arm64
 
 WORKDIR /app
 
