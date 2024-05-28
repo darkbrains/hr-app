@@ -3,12 +3,13 @@ document.addEventListener('DOMContentLoaded', function() {
         'en': {
             'welcome': 'Welcome',
             'signup': 'Sign up to People Connect.',
-            'phone': 'Example +1234567890',
+            'phone': 'Phone number. Example +1234567890',
             'email': 'Email',
             'name': 'Name',
             'surname': 'Surname',
             'password': 'Password',
             'signupBtn': 'Sign up',
+            'loginBtn': 'Login',
             'errors': {
                 'phoneRequired': 'Phone number is required.',
                 'validPhone': 'Please enter a valid phone number with country code.',
@@ -22,12 +23,13 @@ document.addEventListener('DOMContentLoaded', function() {
         'ru': {
             'welcome': 'Добро пожаловать',
             'signup': 'Зарегистрироваться в People Connect.',
-            'phone': 'Пример +1234567890',
+            'phone': 'Номер телефона. Пример +1234567890',
             'email': 'Эл. адрес',
             'name': 'Имя',
             'surname': 'Фамилия',
             'password': 'Пароль',
             'signupBtn': 'Регистрация',
+            'loginBtn': 'Вход',
             'errors': {
                 'phoneRequired': 'Укажите номер телефона.',
                 'validPhone': 'Пожалуйста, введите действительный номер телефона с кодом страны.',
@@ -41,12 +43,13 @@ document.addEventListener('DOMContentLoaded', function() {
         'hy': {
             'welcome': 'Բարի գալուստ',
             'signup': 'Գրանցվել People Connect-ում։',
-            'phone': 'Օրինակ՝ +1234567890',
+            'phone': 'Հեռախոսահամար: Օրինակ՝ +1234567890',
             'email': 'Էլ․ հասցե',
             'name': 'Անուն',
             'surname': 'Ազգանուն',
             'password': 'Գաղտնաբառ',
             'signupBtn': 'Գրանցվել',
+            'loginBtn': 'Մուտք',
             'errors': {
                 'phoneRequired': 'Հեռախոսահամարը պարտադիր է:',
                 'validPhone': 'Խնդրում ենք մուտքագրել վավեր հեռախոսահամար՝ երկրի կոդով:',
@@ -76,6 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
         name: document.getElementById('name-error'),
         surname: document.getElementById('surname-error')
     };
+    const submitButton = document.querySelector('button[type="submit"]');
     const defaultLang = 'hy';
     changeLanguage(defaultLang);
     languageSelector.value = defaultLang;
@@ -83,25 +87,22 @@ document.addEventListener('DOMContentLoaded', function() {
         changeLanguage(this.value);
     });
 
-
     function changeLanguage(lang) {
         const texts = window.translations[lang];
         document.querySelector('.login-form h1').textContent = texts.welcome;
         document.querySelector('.w-text p').textContent = texts.signup;
-        Object.keys(inputs).forEach(function (key) {
+        Object.keys(inputs).forEach(function(key) {
             inputs[key].placeholder = texts[key];
             errorElements[key].textContent = '';
         });
-        document.querySelector('button[type="submit"]').textContent = texts.signupBtn;
+        submitButton.textContent = texts.loginBtn;
     }
-
 
     function showOrHideError(input, message, show) {
         const errorElement = errorElements[input.id];
         errorElement.textContent = message;
         errorElement.style.display = show ? 'block' : 'none';
     }
-
 
     function validateInput(input) {
         const lang = languageSelector.value;
@@ -130,41 +131,27 @@ document.addEventListener('DOMContentLoaded', function() {
         return valid;
     }
 
-
     function validateForm() {
         let isFormValid = true;
-        Object.values(inputs).forEach(function (input) {
+        Object.values(inputs).forEach(function(input) {
             isFormValid = validateInput(input) && isFormValid;
         });
         return isFormValid;
     }
 
-
     form.addEventListener('submit', function(event) {
         event.preventDefault();
-
-        let hiddenLangInput = document.querySelector('input[name="lang"]');
-        if (!hiddenLangInput) {
-            hiddenLangInput = document.createElement('input');
-            hiddenLangInput.type = 'hidden';
-            hiddenLangInput.name = 'lang';
-            this.appendChild(hiddenLangInput);
-        }
-        hiddenLangInput.value = languageSelector.value;
-
         const isFormValid = validateForm();
         if (isFormValid) {
             this.submit();
         }
     });
 
-
-    Object.values(inputs).forEach(function (input) {
-        input.addEventListener('input', function () {
+    Object.values(inputs).forEach(function(input) {
+        input.addEventListener('input', function() {
             validateInput(input);
         });
     });
-
 
     async function checkUser() {
         const phone = inputs.phone.value.trim();
@@ -172,6 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!phone || !email) {
             inputs.name.style.display = 'none';
             inputs.surname.style.display = 'none';
+            submitButton.textContent = window.translations[languageSelector.value].signupBtn;
             return;
         }
         try {
@@ -181,26 +169,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: `email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}`
             });
             const data = await response.json();
-
             if (!data.exists) {
                 inputs.name.style.display = '';
                 inputs.surname.style.display = '';
+                submitButton.textContent = window.translations[languageSelector.value].signupBtn;
             } else {
                 inputs.name.style.display = 'none';
                 inputs.surname.style.display = 'none';
+                submitButton.textContent = window.translations[languageSelector.value].loginBtn;
             }
         } catch (error) {
             console.error('Error checking user:', error);
+            submitButton.textContent = window.translations[languageSelector.value].signupBtn;
         }
     }
-
 
     inputs.email.addEventListener('blur', checkUser);
     inputs.phone.addEventListener('blur', checkUser);
     inputs.name.style.display = 'none';
     inputs.surname.style.display = 'none';
-    changeLanguage(languageSelector.value);
-    languageSelector.addEventListener('change', function() {
-        changeLanguage(this.value);
-    });
 });

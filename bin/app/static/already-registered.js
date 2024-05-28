@@ -17,26 +17,39 @@ const translations = {
 };
 
 
-const languageSelector = document.getElementById('language-selector');
-const titleElement = document.getElementById('warning-title');
-const textElement = document.getElementById('main-text');
-const buttonElement = document.getElementById('finish-btn');
+document.addEventListener('DOMContentLoaded', function() {
+    const languageSelector = document.getElementById('language-selector');
+    const title = document.getElementById('warning-title');
+    const description = document.getElementById('main-text');
+    const submitButton = document.getElementById('finish-btn');
 
+    function updateLanguage(lang) {
+        const langTranslations = translations[lang];
+        title.textContent = langTranslations.title;
+        description.textContent = langTranslations.text;
+        submitButton.textContent = langTranslations.button;
+    }
 
-function updateLanguage(lang) {
-    titleElement.textContent = translations[lang].title;
-    textElement.textContent = translations[lang].text;
-    buttonElement.textContent = translations[lang].button;
-}
+    const serverLang = document.querySelector('input[name="lang"]').value;
 
-const currentLang = localStorage.getItem('selectedLanguage') || 'hy';
-languageSelector.value = currentLang;
-updateLanguage(currentLang);
-languageSelector.addEventListener('change', function() {
-    localStorage.setItem('selectedLanguage', this.value);
-    updateLanguage(this.value);
+    languageSelector.value = serverLang;
+    updateLanguage(serverLang);
+
+    languageSelector.addEventListener('change', function() {
+        const newLang = this.value;
+        localStorage.setItem('selectedLanguage', newLang);
+        updateLanguage(newLang);
+    });
+
+    form.addEventListener('submit', function(event) {
+        if (!codeInput.value || codeInput.value.length !== 6) {
+            event.preventDefault();
+            errorMessage.style.display = 'block';
+        } else {
+            errorMessage.style.display = 'none';
+        }
+    });
 });
-
 
 function goBack() {
     window.history.back();
