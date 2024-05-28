@@ -36,7 +36,6 @@ FROM scratch
 
 COPY --from=buildone /usr/local/bin/bash /bin/bash
 COPY --from=buildtwo /usr/local/python3.12 /usr/local/python3.12
-COPY --from=buildtwo /lib/x86_64-linux-gnu/ /lib/x86_64-linux-gnu/
 COPY --from=buildtwo /lib /lib
 
 ENV PATH="/usr/local/python3.12/bin:$PATH"
