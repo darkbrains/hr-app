@@ -1,5 +1,6 @@
-github: [octocat, surftocat]
-patreon: octocat
-tidelift: npm/octo-package
-custom: ["https://www.paypal.me/octocat", octocat.com]
+github: dark-brains
 
+custom:
+  - "bitcoin:136Ypsq1db3kAFBZFJ4r887cHB95cqxfFa"
+  - "ethereum:0xcfdc4b4c12a743e35c2906317dfe4f58dd8c0888"
+  - "usdt-erc20:0xcfdc4b4c12a743e35c2906317dfe4f58dd8c0888"
