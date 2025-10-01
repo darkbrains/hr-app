@@ -1,6 +1,4 @@
-github: dark-brains
-
-custom:
-  - "https://www.blockchain.com/btc/address/136Ypsq1db3kAFBZFJ4r887cHB95cqxfFa"
-  - "https://etherscan.io/address/0xcfdc4b4c12a743e35c2906317dfe4f58dd8c0888"
-  - "https://etherscan.io/token/0xdac17f958d2ee523a2206206994597c13d831ec7?a=0xcfdc4b4c12a743e35c2906317dfe4f58dd8c0888"
+github: [octocat, surftocat]
+patreon: octocat
+tidelift: npm/octo-package
+custom: ["https://www.paypal.me/octocat", octocat.com]
